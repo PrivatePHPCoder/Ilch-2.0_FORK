@@ -33,6 +33,11 @@ $isHttps = $isHttps && (strcasecmp('on', $isHttps) == 0 || strcasecmp('https', $
 
 define('ISHTTPSPAGE', $isHttps);
 
+// Without strict mode PHP adopts any session id supplied by the client, which allows an
+// attacker to fixate a session id known to him before the victim logs in. With strict mode
+// PHP discards an unknown id and creates a new one instead.
+@ini_set('session.use_strict_mode', '1');
+
 session_set_cookie_params([
     'lifetime' => 0,
     'path' => '/',

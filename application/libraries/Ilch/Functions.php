@@ -524,6 +524,26 @@ function setcookieIlch(string $name, string $value = '', int $expires = 0, ?arra
 }
 
 /**
+ * Renew the session id while keeping the session data.
+ *
+ * Has to be called whenever the privileges of a session change, above all after a successful
+ * login. Otherwise a session id known to an attacker before the login would stay valid
+ * afterwards (session fixation).
+ *
+ * @since 2.2.19
+ *
+ * @return bool
+ */
+function regenerateSessionId(): bool
+{
+    if (session_status() !== PHP_SESSION_ACTIVE || headers_sent()) {
+        return false;
+    }
+
+    return session_regenerate_id(true);
+}
+
+/**
  * Generate a UUID v4.
  *
  * @since 2.1.48

@@ -12,6 +12,22 @@
 
 namespace Captcha;
 
+// This file is requested directly, so it starts its own session. It therefore has to repeat
+// the session settings of index.php: without them PHP would adopt a session id chosen by the
+// client, and a visitor whose first request hits this file would get a session cookie without
+// the httponly, samesite and secure flags.
+$isHttps = $_SERVER['HTTPS'] ?? $_SERVER['HTTP_X_FORWARDED_PROTO'] ?? null;
+$isHttps = $isHttps && (strcasecmp('on', $isHttps) == 0 || strcasecmp('https', $isHttps) == 0);
+
+@ini_set('session.use_strict_mode', '1');
+session_set_cookie_params([
+    'lifetime' => 0,
+    'path' => '/',
+    'domain' => $_SERVER['SERVER_NAME'],
+    'samesite' => 'Lax',
+    'secure' => (bool) $isHttps,
+    'httponly' => true,
+]);
 session_start();
 
 $captcha = new Captcha();
