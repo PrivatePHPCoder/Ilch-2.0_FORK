@@ -559,7 +559,6 @@ class Mysql
     protected function handleError(string $sql, $subQuery = null)
     {
         switch (self::$errorHandling) {
-            default:
             case self::OUTPUT_ERRORS:
                 echo '<pre><h4 class="text-danger">MySQL Error:</h4>',
                     $this->conn->errno . ': ' . $this->conn->error,
@@ -568,6 +567,7 @@ class Mysql
                 //flush to make error visible (a redirect could suppress it)
                 flush();
                 break;
+            default:
             case self::THROW_EXCEPTIONS:
                 $subQueryString = $subQuery !== null ? sprintf('[SubQuery %d]', $subQuery) : '';
                 $errorMessage = \sprintf("MySQL Error: %s\nin Query%s: %s", $this->conn->error, $subQueryString, $sql);
