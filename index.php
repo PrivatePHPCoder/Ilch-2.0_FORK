@@ -86,6 +86,20 @@ try {
     $page = new \Ilch\Page();
     $page->loadCms();
     $page->loadPage();
-} catch (Exception $ex) {
-    print 'An unexpected error occurred: <pre>' . $ex->getMessage() . '</pre>';
+} catch (\Throwable $ex) {
+    // The exception message can contain internal details such as the full SQL query and server
+    // paths, and it embeds user input that is SQL- but not HTML-escaped. Never send that to a
+    // visitor: it helps attackers and can reflect as XSS. Show it only in debug mode, always
+    // HTML-escaped; otherwise log it and return a generic message. Throwable also covers Error.
+    error_log((string) $ex);
+
+    if (!headers_sent()) {
+        http_response_code(500);
+    }
+
+    if (DEBUG_MODE) {
+        print 'An unexpected error occurred: <pre>' . htmlspecialchars($ex->getMessage(), ENT_QUOTES, 'UTF-8') . '</pre>';
+    } else {
+        print 'An unexpected error occurred.';
+    }
 }
