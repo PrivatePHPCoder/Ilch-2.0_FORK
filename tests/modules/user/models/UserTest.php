@@ -158,6 +158,72 @@ class UserTest extends DatabaseTestCase
     }
 
     /**
+     * Tests if a matching code together with a valid expiry date is accepted.
+     */
+    public function testHasValidPasswordResetCode()
+    {
+        $user = new User();
+        $user->setConfirmedCode('abc123');
+        $user->setExpires(date('Y-m-d\TH:i:s', strtotime('+1 day')));
+
+        self::assertTrue($user->hasValidPasswordResetCode('abc123'), 'A valid code was not accepted.');
+    }
+
+    /**
+     * Tests if a request without an expiry date is rejected.
+     *
+     * A selector created during registration is stored without an expiry date, so this case
+     * must not grant a password reset even though no code is known to the caller.
+     */
+    public function testHasValidPasswordResetCodeWithoutExpires()
+    {
+        $user = new User();
+        $user->setConfirmedCode('abc123');
+
+        self::assertFalse($user->hasValidPasswordResetCode(''), 'A missing expiry date was accepted.');
+        self::assertFalse($user->hasValidPasswordResetCode('wrongcode'), 'A missing expiry date was accepted.');
+        self::assertFalse($user->hasValidPasswordResetCode('abc123'), 'A missing expiry date was accepted.');
+    }
+
+    /**
+     * Tests if a matching code is rejected once the expiry date has passed.
+     */
+    public function testHasValidPasswordResetCodeWithExpiredDate()
+    {
+        $user = new User();
+        $user->setConfirmedCode('abc123');
+        $user->setExpires(date('Y-m-d\TH:i:s', strtotime('-1 second')));
+
+        self::assertFalse($user->hasValidPasswordResetCode('abc123'), 'An expired code was accepted.');
+    }
+
+    /**
+     * Tests if a code which does not match the stored one is rejected.
+     */
+    public function testHasValidPasswordResetCodeWithWrongCode()
+    {
+        $user = new User();
+        $user->setConfirmedCode('abc123');
+        $user->setExpires(date('Y-m-d\TH:i:s', strtotime('+1 day')));
+
+        self::assertFalse($user->hasValidPasswordResetCode('abc124'), 'A wrong code was accepted.');
+        self::assertFalse($user->hasValidPasswordResetCode('abc'), 'A shortened code was accepted.');
+        self::assertFalse($user->hasValidPasswordResetCode(''), 'An empty code was accepted.');
+    }
+
+    /**
+     * Tests if a user without a stored code is rejected.
+     */
+    public function testHasValidPasswordResetCodeWithoutStoredCode()
+    {
+        $user = new User();
+        $user->setConfirmedCode('');
+        $user->setExpires(date('Y-m-d\TH:i:s', strtotime('+1 day')));
+
+        self::assertFalse($user->hasValidPasswordResetCode(''), 'An empty stored code was accepted.');
+    }
+
+    /**
      * Returns database schema SQL statements to initialize database
      *
      * @return string

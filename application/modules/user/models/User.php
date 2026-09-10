@@ -498,6 +498,31 @@ class User extends \Ilch\Model
     }
 
     /**
+     * Checks whether the given code is a valid password reset code for this user.
+     *
+     * The code is compared in every case. A missing or already expired expiry date counts
+     * as invalid: otherwise knowing the selector alone would be enough to set a new
+     * password, because a selector created during registration is stored without an
+     * expiry date.
+     *
+     * @param string $confirmedCode
+     * @return bool
+     * @since 2.2.19
+     */
+    public function hasValidPasswordResetCode(string $confirmedCode): bool
+    {
+        if (empty($this->getExpires()) || strtotime($this->getExpires()) < time()) {
+            return false;
+        }
+
+        if (empty($this->getConfirmedCode()) || empty($confirmedCode)) {
+            return false;
+        }
+
+        return hash_equals($this->getConfirmedCode(), $confirmedCode);
+    }
+
+    /**
      * Gets the groups of the user.
      *
      * @return Group[]
