@@ -11,9 +11,9 @@ use Ilch\Config\Database;
 
 class Config extends \Ilch\Config\Install
 {
-    public $config = [
+    public array $config = [
         'key' => 'guestbook',
-        'version' => '1.14.5',
+        'version' => '1.14.6',
         'icon_small' => 'fa-solid fa-book',
         'author' => 'Stantin, Thomas',
         'link' => 'https://ilch.de',
@@ -29,7 +29,7 @@ class Config extends \Ilch\Config\Install
             ],
         ],
         'ilchCore' => '2.2.13',
-        'phpVersion' => '7.4'
+        'phpVersion' => '8.1'
     ];
 
     public function install()
