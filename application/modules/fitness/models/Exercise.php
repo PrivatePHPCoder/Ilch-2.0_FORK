@@ -11,20 +11,9 @@ use Ilch\Model;
 
 class Exercise extends Model
 {
-    public const DIFFICULTY_BEGINNER = 1;
-    public const DIFFICULTY_INTERMEDIATE = 2;
-    public const DIFFICULTY_ADVANCED = 3;
-
-    /**
-     * Translation keys of the difficulty levels.
-     *
-     * @var array<int, string>
-     */
-    public const DIFFICULTIES = [
-        self::DIFFICULTY_BEGINNER => 'difficultyBeginner',
-        self::DIFFICULTY_INTERMEDIATE => 'difficultyIntermediate',
-        self::DIFFICULTY_ADVANCED => 'difficultyAdvanced',
-    ];
+    public const DIFFICULTY_BEGINNER = Difficulty::BEGINNER;
+    public const DIFFICULTY_INTERMEDIATE = Difficulty::INTERMEDIATE;
+    public const DIFFICULTY_ADVANCED = Difficulty::ADVANCED;
 
     /**
      * @var int
@@ -272,7 +261,7 @@ class Exercise extends Model
      */
     public function setDifficulty(int $difficulty): Exercise
     {
-        $this->difficulty = isset(self::DIFFICULTIES[$difficulty]) ? $difficulty : self::DIFFICULTY_BEGINNER;
+        $this->difficulty = Difficulty::normalize($difficulty);
         return $this;
     }
 
@@ -283,7 +272,7 @@ class Exercise extends Model
      */
     public function getDifficultyKey(): string
     {
-        return self::DIFFICULTIES[$this->difficulty];
+        return Difficulty::getKey($this->difficulty);
     }
 
     public function getImage(): string

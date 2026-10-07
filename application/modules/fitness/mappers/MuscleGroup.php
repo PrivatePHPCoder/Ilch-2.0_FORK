@@ -7,10 +7,9 @@
 
 namespace Modules\Fitness\Mappers;
 
-use Ilch\Mapper;
 use Modules\Fitness\Models\MuscleGroup as MuscleGroupModel;
 
-class MuscleGroup extends Mapper
+class MuscleGroup extends Base
 {
     /**
      * @var string
@@ -75,7 +74,7 @@ class MuscleGroup extends Mapper
             return $muscleGroup->getId();
         }
 
-        $muscleGroup->setPosition($this->getNextPosition());
+        $muscleGroup->setPosition($this->getNextPositionOf($this->tablename));
 
         return (int)$this->db()->insert($this->tablename)
             ->values($muscleGroup->getArray(false))
@@ -89,12 +88,7 @@ class MuscleGroup extends Mapper
      */
     public function updatePositions(array $ids): void
     {
-        foreach (array_values($ids) as $position => $id) {
-            $this->db()->update($this->tablename)
-                ->values(['position' => $position])
-                ->where(['id' => (int)$id])
-                ->execute();
-        }
+        $this->updatePositionsOf($this->tablename, $ids);
     }
 
     /**
@@ -108,13 +102,5 @@ class MuscleGroup extends Mapper
         return (bool)$this->db()->delete($this->tablename)
             ->where(['id' => $id])
             ->execute();
-    }
-
-    private function getNextPosition(): int
-    {
-        return (int)$this->db()->select('MAX(position)')
-            ->from($this->tablename)
-            ->execute()
-            ->fetchCell() + 1;
     }
 }

@@ -26,6 +26,7 @@ class Base extends Admin
     private const MENU = [
         'index' => ['name' => 'menuOverview', 'icon' => 'fa-solid fa-gauge'],
         'exercises' => ['name' => 'menuExercises', 'icon' => 'fa-solid fa-person-running', 'add' => true],
+        'workouts' => ['name' => 'menuWorkouts', 'icon' => 'fa-solid fa-list-check', 'add' => true],
         'categories' => ['name' => 'menuCategories', 'icon' => 'fa-solid fa-tags', 'add' => true],
         'musclegroups' => ['name' => 'menuMuscleGroups', 'icon' => 'fa-solid fa-hand-fist', 'add' => true],
         'settings' => ['name' => 'menuSettings', 'icon' => 'fa-solid fa-gears'],

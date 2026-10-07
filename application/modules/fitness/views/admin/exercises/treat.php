@@ -2,9 +2,9 @@
 
 /** @var \Ilch\View $this */
 
-use Modules\Fitness\Models\Exercise;
+use Modules\Fitness\Models\Difficulty;
 
-/** @var Exercise $exercise */
+/** @var \Modules\Fitness\Models\Exercise $exercise */
 $exercise = $this->get('exercise');
 /** @var \Modules\Fitness\Models\Category[] $categories */
 $categories = $this->get('categories');
@@ -54,7 +54,7 @@ $isActive = (int)$this->originalInput('active', (int)$exercise->isActive());
         </label>
         <div class="col-xl-4">
             <select class="form-select" id="difficulty" name="difficulty">
-                <?php foreach (Exercise::DIFFICULTIES as $value => $translationKey) : ?>
+                <?php foreach (Difficulty::KEYS as $value => $translationKey) : ?>
                     <option value="<?=$value ?>"<?=$selectedDifficulty === $value ? ' selected' : '' ?>><?=$this->getTrans($translationKey) ?></option>
                 <?php endforeach; ?>
             </select>

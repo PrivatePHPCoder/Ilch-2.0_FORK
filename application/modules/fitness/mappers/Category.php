@@ -7,10 +7,9 @@
 
 namespace Modules\Fitness\Mappers;
 
-use Ilch\Mapper;
 use Modules\Fitness\Models\Category as CategoryModel;
 
-class Category extends Mapper
+class Category extends Base
 {
     /**
      * @var string
@@ -75,7 +74,7 @@ class Category extends Mapper
             return $category->getId();
         }
 
-        $category->setPosition($this->getNextPosition());
+        $category->setPosition($this->getNextPositionOf($this->tablename));
 
         return (int)$this->db()->insert($this->tablename)
             ->values($category->getArray(false))
@@ -89,12 +88,7 @@ class Category extends Mapper
      */
     public function updatePositions(array $ids): void
     {
-        foreach (array_values($ids) as $position => $id) {
-            $this->db()->update($this->tablename)
-                ->values(['position' => $position])
-                ->where(['id' => (int)$id])
-                ->execute();
-        }
+        $this->updatePositionsOf($this->tablename, $ids);
     }
 
     /**
@@ -108,13 +102,5 @@ class Category extends Mapper
         return (bool)$this->db()->delete($this->tablename)
             ->where(['id' => $id])
             ->execute();
-    }
-
-    private function getNextPosition(): int
-    {
-        return (int)$this->db()->select('MAX(position)')
-            ->from($this->tablename)
-            ->execute()
-            ->fetchCell() + 1;
     }
 }

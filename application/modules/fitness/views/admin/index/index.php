@@ -6,6 +6,7 @@
 $counts = $this->get('counts');
 $sections = [
     'exercises' => ['menuExercises', 'fa-solid fa-person-running'],
+    'workouts' => ['menuWorkouts', 'fa-solid fa-list-check'],
     'categories' => ['menuCategories', 'fa-solid fa-tags'],
     'musclegroups' => ['menuMuscleGroups', 'fa-solid fa-hand-fist'],
 ];

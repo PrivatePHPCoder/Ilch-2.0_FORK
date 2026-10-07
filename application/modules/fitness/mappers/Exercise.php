@@ -8,10 +8,9 @@
 namespace Modules\Fitness\Mappers;
 
 use Ilch\Date;
-use Ilch\Mapper;
 use Modules\Fitness\Models\Exercise as ExerciseModel;
 
-class Exercise extends Mapper
+class Exercise extends Base
 {
     /**
      * @var string
@@ -98,23 +97,14 @@ class Exercise extends Mapper
             $exercise->setUpdatedAt($now);
             $fields = $exercise->getArray(false);
             unset($fields['created_at']);
-
-            $this->db()->update($this->tablename)
-                ->values($fields)
-                ->where(['id' => $exercise->getId()])
-                ->execute();
-
-            if ($exercise->getCategoryId() === null) {
-                // The query builder skips null values, so remove the category explicitly.
-                $this->db()->query('UPDATE `[prefix]_' . $this->tablename . '` SET `category_id` = NULL WHERE `id` = ' . $exercise->getId());
-            }
+            $this->updateRow($this->tablename, $exercise->getId(), $fields);
 
             $id = $exercise->getId();
         } else {
             if ($exercise->getCreatedAt() === '') {
                 $exercise->setCreatedAt($now);
             }
-            $exercise->setPosition($this->getNextPosition());
+            $exercise->setPosition($this->getNextPositionOf($this->tablename));
 
             $id = (int)$this->db()->insert($this->tablename)
                 ->values($exercise->getArray(false))
@@ -157,12 +147,7 @@ class Exercise extends Mapper
      */
     public function updatePositions(array $ids): void
     {
-        foreach (array_values($ids) as $position => $id) {
-            $this->db()->update($this->tablename)
-                ->values(['position' => $position])
-                ->where(['id' => (int)$id])
-                ->execute();
-        }
+        $this->updatePositionsOf($this->tablename, $ids);
     }
 
     /**
@@ -195,13 +180,5 @@ class Exercise extends Mapper
         return (bool)$this->db()->delete($this->tablename)
             ->where(['id' => $id])
             ->execute();
-    }
-
-    private function getNextPosition(): int
-    {
-        return (int)$this->db()->select('MAX(position)')
-            ->from($this->tablename)
-            ->execute()
-            ->fetchCell() + 1;
     }
 }
