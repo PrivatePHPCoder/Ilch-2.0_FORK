@@ -1,13 +1,26 @@
-/* Fitness module: own layout. All classes start with "fx-". */
+/*
+ * Fitness module. All classes start with "fx-".
+ * The variables and .fx-body belong to the own fitness layout, everything else also works
+ * inside the regular layout of the website.
+ */
 
 :root {
-    --fx-bg: #f4f6f8;
+    --fx-bg: #f3f5f8;
     --fx-surface: #ffffff;
-    --fx-text: #1d2433;
-    --fx-muted: #5b6475;
-    --fx-dark: #141a26;
+    --fx-text: #1b2230;
+    --fx-muted: #5c6577;
+    --fx-line: #e3e7ee;
+    --fx-dark: #121826;
+    --fx-dark-2: #1e2738;
     --fx-accent: #22c55e;
+    --fx-accent-dark: #15803d;
+    --fx-accent-soft: #dcfce7;
+    --fx-paid: #f59e0b;
+    --fx-radius: 1rem;
+    --fx-shadow: 0 1px 2px rgba(18, 24, 38, 0.06), 0 8px 24px rgba(18, 24, 38, 0.06);
 }
+
+/* Own layout */
 
 .fx-body {
     display: flex;
@@ -18,6 +31,9 @@
 }
 
 .fx-header {
+    position: sticky;
+    top: 0;
+    z-index: 1020;
     background: var(--fx-dark);
 }
 
@@ -27,29 +43,18 @@
     text-transform: uppercase;
 }
 
-.fx-brand .fa-dumbbell {
-    color: var(--fx-accent);
-}
-
+.fx-brand .fa-dumbbell,
 .fx-header .nav-link.active {
     color: var(--fx-accent);
 }
 
+.fx-header .nav-link {
+    font-weight: 600;
+}
+
 .fx-main {
     flex: 1 0 auto;
-    padding: 2rem 0;
-}
-
-.fx-welcome {
-    padding: 2rem;
-    border-radius: 1rem;
-    background: var(--fx-surface);
-    box-shadow: 0 1px 3px rgba(20, 26, 38, 0.08);
-}
-
-.fx-welcome p {
-    margin-bottom: 0;
-    color: var(--fx-muted);
+    padding: 2rem 0 3rem;
 }
 
 .fx-footer {
@@ -66,4 +71,574 @@
 
 .fx-footer a:hover {
     color: #ffffff;
+}
+
+/* Ilch shows its cookie settings icon top left by default. There it would cover the logo. */
+.fx-body .tarteaucitronIconTopLeft {
+    top: auto;
+    bottom: 0;
+}
+
+/* Text */
+
+.fx-eyebrow {
+    margin-bottom: 0.25rem;
+    color: var(--fx-accent-dark);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.fx-eyebrow--light {
+    color: var(--fx-accent);
+}
+
+.fx-page-head {
+    margin-bottom: 1.5rem;
+}
+
+.fx-page-title {
+    margin-bottom: 0.5rem;
+    font-weight: 800;
+}
+
+.fx-page-lead {
+    max-width: 48rem;
+    color: var(--fx-muted);
+}
+
+.fx-section {
+    margin-top: 2rem;
+}
+
+.fx-section-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.fx-section-title {
+    margin-bottom: 1rem;
+    font-size: 1.25rem;
+    font-weight: 800;
+}
+
+.fx-section-head .fx-section-title {
+    margin-bottom: 0;
+}
+
+.fx-empty {
+    padding: 2rem;
+    border: 2px dashed var(--fx-line);
+    border-radius: var(--fx-radius);
+    color: var(--fx-muted);
+    text-align: center;
+}
+
+.fx-prose img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Buttons. ".btn." raises the weight, because layouts may load Bootstrap after this file. */
+
+.btn.fx-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.65rem 1.25rem;
+    border-radius: 999px;
+    font-weight: 700;
+}
+
+.btn.fx-btn--primary {
+    border: 0;
+    background: var(--fx-accent);
+    color: #062e16;
+}
+
+.btn.fx-btn--primary:hover,
+.btn.fx-btn--primary:focus {
+    background: #16a34a;
+    color: #ffffff;
+}
+
+.btn.fx-btn--ghost {
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    color: #ffffff;
+}
+
+.btn.fx-btn--ghost:hover,
+.btn.fx-btn--ghost:focus {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+}
+
+.btn.fx-btn--ghost-dark {
+    border: 1px solid var(--fx-line);
+    color: var(--fx-text);
+}
+
+/* Hero */
+
+.fx-hero,
+.fx-program-hero {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+    margin-bottom: 2rem;
+    padding: 2.5rem;
+    border-radius: calc(var(--fx-radius) * 1.5);
+    background: radial-gradient(circle at top right, rgba(34, 197, 94, 0.35), transparent 55%), linear-gradient(135deg, var(--fx-dark), var(--fx-dark-2));
+    color: #ffffff;
+}
+
+.fx-hero__content,
+.fx-program-hero__content {
+    flex: 1 1 22rem;
+}
+
+.fx-hero__title {
+    margin-bottom: 0.75rem;
+    font-size: clamp(1.75rem, 4vw, 2.75rem);
+    font-weight: 800;
+}
+
+.fx-hero__text {
+    max-width: 40rem;
+    color: #cbd5e1;
+    font-size: 1.1rem;
+}
+
+.fx-hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+}
+
+.fx-hero__stats {
+    display: flex;
+    gap: 1rem;
+}
+
+.fx-stat {
+    min-width: 8rem;
+    padding: 1rem 1.25rem;
+    border-radius: var(--fx-radius);
+    background: rgba(255, 255, 255, 0.08);
+    text-align: center;
+}
+
+.fx-stat strong {
+    display: block;
+    font-size: 2rem;
+    line-height: 1.1;
+}
+
+.fx-stat span {
+    color: #cbd5e1;
+    font-size: 0.875rem;
+}
+
+.fx-program-hero__media {
+    flex: 0 1 22rem;
+}
+
+.fx-program-hero__media img {
+    width: 100%;
+    max-height: 16rem;
+    border-radius: var(--fx-radius);
+    object-fit: cover;
+}
+
+/* Cards */
+
+.fx-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+    gap: 1.25rem;
+}
+
+.fx-card {
+    overflow: hidden;
+    border: 1px solid var(--fx-line);
+    border-radius: var(--fx-radius);
+    background: var(--fx-surface);
+    box-shadow: var(--fx-shadow);
+}
+
+.fx-card--padded {
+    padding: 1.5rem;
+}
+
+.fx-program-card,
+.fx-exercise-card {
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.fx-program-card:hover,
+.fx-exercise-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 32px rgba(18, 24, 38, 0.12);
+}
+
+.fx-card__media {
+    position: relative;
+    display: block;
+    aspect-ratio: 16 / 9;
+    background: var(--fx-dark-2);
+}
+
+.fx-card__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.fx-card__placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, var(--fx-dark), #23503a);
+    color: rgba(255, 255, 255, 0.55);
+    font-size: 2.5rem;
+}
+
+.fx-card__body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    padding: 1.25rem;
+}
+
+.fx-card__title {
+    margin-bottom: 0.5rem;
+    font-size: 1.15rem;
+    font-weight: 800;
+}
+
+.fx-card__title a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.fx-card__title a:hover {
+    color: var(--fx-accent-dark);
+}
+
+.fx-card__text {
+    color: var(--fx-muted);
+}
+
+.fx-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1rem;
+    margin: auto 0 0;
+    padding: 0;
+    list-style: none;
+    color: var(--fx-muted);
+    font-size: 0.875rem;
+}
+
+.fx-meta--light {
+    margin-top: 1rem;
+    color: #cbd5e1;
+}
+
+.fx-badge {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    padding: 0.3rem 0.7rem;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+.fx-badge--free {
+    background: var(--fx-accent);
+    color: #062e16;
+}
+
+.fx-badge--paid {
+    background: var(--fx-paid);
+    color: #3b2400;
+}
+
+.fx-badge--video {
+    background: rgba(18, 24, 38, 0.75);
+    color: #ffffff;
+}
+
+.fx-badge--soft {
+    position: static;
+    margin-left: 0.5rem;
+    padding: 0.15rem 0.5rem;
+    background: var(--fx-accent-soft);
+    color: var(--fx-accent-dark);
+    font-size: 0.7rem;
+}
+
+/* Dashboard */
+
+.fx-progress-teaser {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    padding: 1.5rem;
+}
+
+.fx-progress-teaser .fx-section-title {
+    margin-bottom: 0.25rem;
+}
+
+.fx-progress-teaser__icon {
+    display: flex;
+    flex: 0 0 3.5rem;
+    align-items: center;
+    justify-content: center;
+    height: 3.5rem;
+    border-radius: 50%;
+    background: var(--fx-accent-soft);
+    color: var(--fx-accent-dark);
+    font-size: 1.5rem;
+}
+
+/* Program plan */
+
+.fx-plan {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.fx-plan__phase {
+    border: 1px solid var(--fx-line);
+    border-radius: var(--fx-radius);
+    background: var(--fx-surface);
+}
+
+.fx-plan__phase summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.25rem;
+    cursor: pointer;
+    font-weight: 700;
+    list-style: none;
+}
+
+.fx-plan__phase summary::-webkit-details-marker {
+    display: none;
+}
+
+.fx-plan__phase summary::after {
+    content: "\f078";
+    margin-left: 1rem;
+    font-family: "Font Awesome 7 Free", "Font Awesome 6 Free", sans-serif;
+    font-weight: 900;
+    transition: transform 0.15s ease;
+}
+
+.fx-plan__phase[open] summary::after {
+    transform: rotate(180deg);
+}
+
+.fx-plan__count {
+    margin-left: auto;
+    color: var(--fx-muted);
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.fx-plan__description {
+    margin: 0 1.25rem 0.75rem;
+    color: var(--fx-muted);
+}
+
+.fx-plan__sessions {
+    margin: 0;
+    padding: 0 1.25rem 1rem;
+    list-style: none;
+}
+
+.fx-plan__sessions li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.6rem 0;
+    border-top: 1px solid var(--fx-line);
+}
+
+.fx-plan__session-title .fa-dumbbell {
+    margin-right: 0.4rem;
+    color: var(--fx-accent-dark);
+}
+
+.fx-plan__day {
+    color: var(--fx-muted);
+    font-size: 0.875rem;
+}
+
+/* Call to action */
+
+.fx-cta {
+    position: sticky;
+    top: 5rem;
+}
+
+.fx-cta__price {
+    margin-bottom: 0.75rem;
+    font-size: clamp(1.4rem, 2.5vw, 2rem);
+    font-weight: 800;
+    overflow-wrap: normal;
+    word-break: normal;
+}
+
+.fx-cta__note {
+    margin: 0.75rem 0 0;
+    color: var(--fx-muted);
+    font-size: 0.875rem;
+}
+
+/* Exercise library */
+
+.fx-filters {
+    display: grid;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.fx-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.fx-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.35rem 0.9rem;
+    border: 1px solid var(--fx-line);
+    border-radius: 999px;
+    background: var(--fx-surface);
+    color: var(--fx-text);
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+a.fx-chip:hover {
+    border-color: var(--fx-accent);
+}
+
+.fx-chip.is-active {
+    border-color: var(--fx-dark);
+    background: var(--fx-dark);
+    color: #ffffff;
+}
+
+.fx-chip.is-primary {
+    border-color: var(--fx-accent);
+    background: var(--fx-accent-soft);
+    color: var(--fx-accent-dark);
+}
+
+.fx-exercise-image {
+    display: block;
+    width: 100%;
+    margin-top: 1rem;
+    border-radius: var(--fx-radius);
+    object-fit: cover;
+}
+
+.fx-exercise-image.fx-card__placeholder {
+    aspect-ratio: 4 / 3;
+    margin-top: 0;
+}
+
+.fx-note {
+    padding: 1.25rem 1.5rem;
+    border-left: 4px solid var(--fx-paid);
+    border-radius: var(--fx-radius);
+    background: #fff8e6;
+}
+
+.fx-note__title {
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+    font-weight: 800;
+}
+
+/* Videos are loaded only after a click */
+
+.fx-video {
+    position: relative;
+    overflow: hidden;
+    aspect-ratio: 16 / 9;
+    border-radius: var(--fx-radius);
+    background: var(--fx-dark);
+}
+
+/* Before loading, the notice decides the height, so the button never gets cut off in narrow columns. */
+.fx-video:not(.fx-video--loaded) {
+    aspect-ratio: auto;
+    min-height: 14rem;
+}
+
+.fx-video iframe {
+    width: 100%;
+    height: 100%;
+    border: 0;
+}
+
+.fx-video__consent {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    padding: 1.5rem;
+    color: #cbd5e1;
+    text-align: center;
+}
+
+.fx-video__consent .fa-circle-play {
+    margin-bottom: 0.75rem;
+    color: var(--fx-accent);
+    font-size: 3rem;
+}
+
+.fx-video__consent p {
+    max-width: 28rem;
+    font-size: 0.875rem;
+}
+
+@media (max-width: 575.98px) {
+    .fx-hero,
+    .fx-program-hero {
+        padding: 1.5rem;
+    }
+
+    .fx-hero__stats {
+        width: 100%;
+    }
+
+    .fx-stat {
+        flex: 1;
+        min-width: 0;
+    }
 }

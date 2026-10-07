@@ -1,13 +1,19 @@
 <?php
 
 /** @var \Ilch\Layout\Frontend $this */
+
+$controller = $this->getRequest()->getControllerName();
+$navigation = [
+    'index' => ['navDashboard', 'fa-solid fa-gauge'],
+    'programs' => ['menuPrograms', 'fa-solid fa-calendar-week'],
+    'exercises' => ['menuExercises', 'fa-solid fa-person-running'],
+];
 ?>
 <!DOCTYPE html>
 <html lang="<?=$this->escape(substr($this->getTranslator()->getLocale(), 0, 2)) ?>">
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <?=$this->getHeader() ?>
-        <link href="<?=$this->getModuleUrl('static/css/fitness.css') ?>" rel="stylesheet">
         <?=$this->getCustomCSS() ?>
         <script src="<?=$this->getVendorUrl('twbs/bootstrap/dist/js/bootstrap.bundle.min.js') ?>"></script>
     </head>
@@ -23,9 +29,13 @@
                     </button>
                     <div class="collapse navbar-collapse" id="fxNav">
                         <ul class="navbar-nav me-auto">
-                            <li class="nav-item">
-                                <a class="nav-link<?=$this->getRequest()->getControllerName() === 'index' ? ' active' : '' ?>" href="<?=$this->getUrl(['module' => 'fitness', 'controller' => 'index', 'action' => 'index']) ?>"><?=$this->getTrans('navDashboard') ?></a>
-                            </li>
+                            <?php foreach ($navigation as $navController => [$labelKey, $icon]) : ?>
+                                <li class="nav-item">
+                                    <a class="nav-link<?=$controller === $navController ? ' active' : '' ?>"<?=$controller === $navController ? ' aria-current="page"' : '' ?> href="<?=$this->getUrl(['module' => 'fitness', 'controller' => $navController, 'action' => 'index']) ?>">
+                                        <i class="<?=$icon ?>"></i> <?=$this->getTrans($labelKey) ?>
+                                    </a>
+                                </li>
+                            <?php endforeach; ?>
                         </ul>
                         <ul class="navbar-nav">
                             <li class="nav-item">

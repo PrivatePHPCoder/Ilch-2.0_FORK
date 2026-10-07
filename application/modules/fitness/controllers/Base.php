@@ -16,9 +16,18 @@ use Ilch\Controller\Frontend;
  */
 class Base extends Frontend
 {
+    /**
+     * Group id of guests.
+     */
+    private const GROUP_GUEST = 3;
+
     public function init()
     {
         $this->useFitnessLayout();
+
+        $this->getLayout()->header()
+            ->css('static/css/fitness.css')
+            ->js('static/js/fitness.js');
     }
 
     /**
@@ -36,5 +45,30 @@ class Base extends Frontend
         if ($this->getConfig()->get('fitness_ownLayout') && $layout->getFile() === 'layouts/' . $layoutKey . '/index') {
             $layout->setFile('modules/fitness/layouts/fitness', $layoutKey);
         }
+    }
+
+    /**
+     * Returns the group ids of the current visitor. Guests belong to the guest group.
+     *
+     * @return int[]
+     */
+    protected function getVisitorGroupIds(): array
+    {
+        $user = $this->getUser();
+
+        return $user ? array_map('intval', array_keys($user->getGroups())) : [self::GROUP_GUEST];
+    }
+
+    /**
+     * Returns whether the visitor may manage the fitness module. Such visitors may preview
+     * unpublished programs and inactive exercises.
+     *
+     * @return bool
+     */
+    protected function canManageFitness(): bool
+    {
+        $user = $this->getUser();
+
+        return $user && ($user->isAdmin() || $user->hasAccess('module_fitness'));
     }
 }
