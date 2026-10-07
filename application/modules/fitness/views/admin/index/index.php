@@ -1,9 +1,30 @@
 <?php
 
 /** @var \Ilch\View $this */
+
+/** @var array<string, int> $counts */
+$counts = $this->get('counts');
+$sections = [
+    'exercises' => ['menuExercises', 'fa-solid fa-person-running'],
+    'categories' => ['menuCategories', 'fa-solid fa-tags'],
+    'musclegroups' => ['menuMuscleGroups', 'fa-solid fa-hand-fist'],
+];
 ?>
 <h1><?=$this->getTrans('menuFitness') ?></h1>
 <p><?=$this->getTrans('overviewIntro') ?></p>
+
+<div class="row mb-3">
+    <?php foreach ($sections as $controller => [$nameKey, $icon]) : ?>
+        <div class="col-sm-6 col-xl-3 mb-3">
+            <a class="card text-decoration-none h-100" href="<?=$this->getUrl(['controller' => $controller, 'action' => 'index']) ?>">
+                <div class="card-body">
+                    <div class="fs-2 fw-bold"><?=$counts[$controller] ?></div>
+                    <div class="text-muted"><i class="<?=$icon ?>"></i> <?=$this->getTrans($nameKey) ?></div>
+                </div>
+            </a>
+        </div>
+    <?php endforeach; ?>
+</div>
 
 <div class="alert alert-info">
     <i class="fa-solid fa-circle-info"></i>
