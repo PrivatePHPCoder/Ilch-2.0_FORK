@@ -1,0 +1,69 @@
+/* Fitness module: own layout. All classes start with "fx-". */
+
+:root {
+    --fx-bg: #f4f6f8;
+    --fx-surface: #ffffff;
+    --fx-text: #1d2433;
+    --fx-muted: #5b6475;
+    --fx-dark: #141a26;
+    --fx-accent: #22c55e;
+}
+
+.fx-body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background: var(--fx-bg);
+    color: var(--fx-text);
+}
+
+.fx-header {
+    background: var(--fx-dark);
+}
+
+.fx-brand {
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.fx-brand .fa-dumbbell {
+    color: var(--fx-accent);
+}
+
+.fx-header .nav-link.active {
+    color: var(--fx-accent);
+}
+
+.fx-main {
+    flex: 1 0 auto;
+    padding: 2rem 0;
+}
+
+.fx-welcome {
+    padding: 2rem;
+    border-radius: 1rem;
+    background: var(--fx-surface);
+    box-shadow: 0 1px 3px rgba(20, 26, 38, 0.08);
+}
+
+.fx-welcome p {
+    margin-bottom: 0;
+    color: var(--fx-muted);
+}
+
+.fx-footer {
+    padding: 1rem 0;
+    background: var(--fx-dark);
+    font-size: 0.875rem;
+}
+
+.fx-footer a {
+    margin-right: 1rem;
+    color: #c9d1dd;
+    text-decoration: none;
+}
+
+.fx-footer a:hover {
+    color: #ffffff;
+}
