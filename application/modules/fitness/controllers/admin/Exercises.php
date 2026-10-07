@@ -149,23 +149,4 @@ class Exercises extends Base
 
         $this->redirect(['action' => 'index']);
     }
-
-    /**
-     * Accepts an empty value, an http(s) URL or a relative path like the ones of the media library.
-     *
-     * @param string $image
-     * @return bool
-     */
-    private function isValidImage(string $image): bool
-    {
-        if ($image === '') {
-            return true;
-        }
-
-        if (preg_match('~^https?://~i', $image)) {
-            return filter_var($image, FILTER_VALIDATE_URL) !== false;
-        }
-
-        return preg_match('~^[A-Za-z0-9_\-./]+$~', $image) === 1 && strpos($image, '..') === false;
-    }
 }

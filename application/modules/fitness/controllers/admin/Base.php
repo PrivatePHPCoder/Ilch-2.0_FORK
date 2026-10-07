@@ -27,6 +27,7 @@ class Base extends Admin
         'index' => ['name' => 'menuOverview', 'icon' => 'fa-solid fa-gauge'],
         'exercises' => ['name' => 'menuExercises', 'icon' => 'fa-solid fa-person-running', 'add' => true],
         'workouts' => ['name' => 'menuWorkouts', 'icon' => 'fa-solid fa-list-check', 'add' => true],
+        'programs' => ['name' => 'menuPrograms', 'icon' => 'fa-solid fa-calendar-week', 'add' => true],
         'categories' => ['name' => 'menuCategories', 'icon' => 'fa-solid fa-tags', 'add' => true],
         'musclegroups' => ['name' => 'menuMuscleGroups', 'icon' => 'fa-solid fa-hand-fist', 'add' => true],
         'settings' => ['name' => 'menuSettings', 'icon' => 'fa-solid fa-gears'],
@@ -59,5 +60,24 @@ class Base extends Admin
         }
 
         $this->getLayout()->addMenu('menuFitness', $items);
+    }
+
+    /**
+     * Accepts an empty value, an http(s) URL or a relative path like the ones of the media library.
+     *
+     * @param string $image
+     * @return bool
+     */
+    protected function isValidImage(string $image): bool
+    {
+        if ($image === '') {
+            return true;
+        }
+
+        if (preg_match('~^https?://~i', $image)) {
+            return filter_var($image, FILTER_VALIDATE_URL) !== false;
+        }
+
+        return preg_match('~^[A-Za-z0-9_\-./]+$~', $image) === 1 && strpos($image, '..') === false;
     }
 }
