@@ -35,7 +35,19 @@ $user = $this->get('user');
     </div>
 </section>
 
-<?php if ($user) : ?>
+<?php if ($user && $this->get('trainings')) : ?>
+    <section class="fx-section">
+        <div class="fx-section-head">
+            <h2 class="fx-section-title"><?=$this->getTrans('myProgress') ?></h2>
+            <a href="<?=$this->getUrl(['controller' => 'training', 'action' => 'index']) ?>"><?=$this->getTrans('myTraining') ?> <i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+        <div class="fx-grid fx-grid--wide">
+            <?php foreach ($this->get('trainings') as $training) : ?>
+                <?php $this->load('partials/trainingCard.php', ['training' => $training]); ?>
+            <?php endforeach; ?>
+        </div>
+    </section>
+<?php elseif ($user) : ?>
     <section class="fx-card fx-progress-teaser">
         <div class="fx-progress-teaser__icon"><i class="fa-solid fa-chart-line"></i></div>
         <div>

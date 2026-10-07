@@ -63,6 +63,24 @@ class ProgramStructure extends Base
     }
 
     /**
+     * Returns a single session with the title of its workout.
+     *
+     * @param int $id
+     * @return ProgramSessionModel|null
+     */
+    public function getSessionById(int $id): ?ProgramSessionModel
+    {
+        $row = $this->db()->select(['s.id', 's.program_id', 's.phase_id', 's.workout_id', 's.position', 's.title', 's.day_hint', 's.is_optional'])
+            ->from(['s' => $this->tablenameSessions])
+            ->join(['w' => 'fitness_workouts'], 'w.id = s.workout_id', 'INNER', ['workout_title' => 'w.title'])
+            ->where(['s.id' => $id])
+            ->execute()
+            ->fetchAssoc();
+
+        return $row ? (new ProgramSessionModel())->setByArray($row) : null;
+    }
+
+    /**
      * Stores the phases and sessions of a program in the given order.
      *
      * Phases and sessions that already belong to the program are updated and keep their id,

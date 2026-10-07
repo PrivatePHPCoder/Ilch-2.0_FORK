@@ -642,3 +642,232 @@ a.fx-chip:hover {
         min-width: 0;
     }
 }
+
+/* Progress */
+
+.fx-muted {
+    color: var(--fx-muted);
+}
+
+.fx-grid--wide {
+    grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr));
+}
+
+.fx-progress {
+    overflow: hidden;
+    height: 0.75rem;
+    margin: 0.75rem 0 0.4rem;
+    border-radius: 999px;
+    background: var(--fx-line);
+}
+
+.fx-progress--slim {
+    height: 0.5rem;
+}
+
+.fx-progress__bar {
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--fx-accent-dark), var(--fx-accent));
+    transition: width 0.3s ease;
+}
+
+.fx-progress__legend {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem;
+    color: var(--fx-muted);
+    font-size: 0.875rem;
+}
+
+.fx-progress__legend strong {
+    color: var(--fx-text);
+    font-size: 1.1rem;
+}
+
+.fx-training-card__head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.fx-training-card__next {
+    margin: 1rem 0;
+}
+
+.fx-status {
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+    background: var(--fx-line);
+    font-size: 0.75rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.fx-status--3 {
+    background: var(--fx-accent-soft);
+    color: var(--fx-accent-dark);
+}
+
+.fx-done-icon,
+.fx-plan__sessions li.is-done .fa-circle-check {
+    color: var(--fx-accent);
+}
+
+.fx-plan__sessions li.is-done .fx-plan__session-title a,
+.fx-plan__sessions li.is-done .fx-plan__session-title {
+    color: var(--fx-muted);
+}
+
+/* Training session */
+
+.fx-session-head {
+    margin-bottom: 1.5rem;
+}
+
+.fx-steps {
+    display: grid;
+    gap: 1rem;
+    margin: 0 0 1.5rem;
+    padding: 0;
+    list-style: none;
+}
+
+.fx-step__head {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1.25rem;
+}
+
+.fx-step__number {
+    display: flex;
+    flex: 0 0 2.5rem;
+    align-items: center;
+    justify-content: center;
+    height: 2.5rem;
+    border-radius: 50%;
+    background: var(--fx-dark);
+    color: #ffffff;
+    font-weight: 800;
+}
+
+.fx-step__main {
+    flex: 1;
+    min-width: 0;
+}
+
+.fx-step__title {
+    margin-bottom: 0.5rem;
+    font-size: 1.15rem;
+    font-weight: 800;
+}
+
+.fx-step__image {
+    flex: 0 0 6rem;
+    width: 6rem;
+    height: 6rem;
+    border-radius: 0.75rem;
+    object-fit: cover;
+}
+
+.fx-prescription {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+}
+
+.fx-prescription__item {
+    padding: 0.25rem 0.7rem;
+    border-radius: 0.5rem;
+    background: var(--fx-accent-soft);
+    color: var(--fx-accent-dark);
+    font-weight: 700;
+}
+
+.fx-step__rest {
+    margin-top: 0.5rem;
+    color: var(--fx-muted);
+    font-size: 0.875rem;
+}
+
+.fx-step__notes {
+    margin: 0.5rem 0 0;
+    color: var(--fx-text);
+    font-size: 0.9rem;
+}
+
+.fx-step__details {
+    border-top: 1px solid var(--fx-line);
+}
+
+.fx-step__details summary {
+    padding: 0.75rem 1.25rem;
+    cursor: pointer;
+    color: var(--fx-accent-dark);
+    font-weight: 700;
+}
+
+.fx-step__details-body {
+    padding: 0 1.25rem 1.25rem;
+}
+
+.fx-session-actions {
+    display: grid;
+    gap: 1rem;
+    justify-items: center;
+    text-align: center;
+}
+
+.btn.fx-btn--large {
+    padding: 0.9rem 2rem;
+    font-size: 1.15rem;
+}
+
+.fx-session-done {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    text-align: left;
+}
+
+.fx-session-done .fa-circle-check {
+    color: var(--fx-accent);
+    font-size: 2.25rem;
+}
+
+.fx-session-done strong {
+    display: block;
+    font-size: 1.15rem;
+}
+
+.btn.fx-undo {
+    padding: 0;
+    color: var(--fx-muted);
+    font-size: 0.875rem;
+}
+
+.fx-session-nav {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.75rem;
+    width: 100%;
+    padding-top: 1rem;
+    border-top: 1px solid var(--fx-line);
+    font-size: 0.9rem;
+}
+
+@media (max-width: 575.98px) {
+    .fx-step__image {
+        display: none;
+    }
+
+    .fx-session-nav {
+        flex-direction: column;
+        align-items: center;
+    }
+}

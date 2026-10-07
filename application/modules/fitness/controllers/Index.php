@@ -30,6 +30,7 @@ class Index extends Base
         $this->getView()->set('programs', array_slice($programs, 0, self::FEATURED_PROGRAMS))
             ->set('programCount', count($programs))
             ->set('exerciseCount', count($publicExercises))
-            ->set('user', $this->getUser());
+            ->set('user', $this->getUser())
+            ->set('trainings', $this->getUser() ? $this->getTrainingsOfUser($this->getUser()->getId()) : []);
     }
 }

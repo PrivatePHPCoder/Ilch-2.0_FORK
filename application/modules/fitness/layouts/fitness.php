@@ -8,6 +8,9 @@ $navigation = [
     'programs' => ['menuPrograms', 'fa-solid fa-calendar-week'],
     'exercises' => ['menuExercises', 'fa-solid fa-person-running'],
 ];
+if ($this->getUser()) {
+    $navigation['training'] = ['myTraining', 'fa-solid fa-play'];
+}
 ?>
 <!DOCTYPE html>
 <html lang="<?=$this->escape(substr($this->getTranslator()->getLocale(), 0, 2)) ?>">

@@ -9,6 +9,11 @@ use Modules\Fitness\Service\Media;
 $program = $this->get('program');
 /** @var \Modules\Fitness\Models\ProgramPhase[] $phases */
 $phases = $this->get('phases');
+/** @var \Modules\Fitness\Models\Enrollment|null $enrollment */
+$enrollment = $this->get('enrollment');
+/** @var \Modules\Fitness\Models\Progress|null $progress */
+$progress = $this->get('progress');
+$canViewContent = (bool)$this->get('canViewContent');
 $image = Media::imageUrl($program->getImage(), BASE_URL);
 $price = $program->isPaid() ? $this->getFormattedCurrency((float)$program->getPrice(), $program->getCurrency()) : $this->getTrans('accessFree');
 ?>
@@ -53,7 +58,12 @@ $price = $program->isPaid() ? $this->getFormattedCurrency((float)$program->getPr
                         <?php $sessions = $phase->getSessions(); ?>
                         <details class="fx-plan__phase"<?=$index === 0 ? ' open' : '' ?>>
                             <summary>
-                                <span class="fx-plan__title"><?=$this->escape($phase->getTitle()) ?></span>
+                                <span class="fx-plan__title">
+                                    <?php if ($progress && $progress->isPhaseDone($phase->getId())) : ?>
+                                        <i class="fa-solid fa-circle-check fx-done-icon" title="<?=$this->getTrans('phaseDone') ?>"></i>
+                                    <?php endif; ?>
+                                    <?=$this->escape($phase->getTitle()) ?>
+                                </span>
                                 <span class="fx-plan__count"><?=count($sessions) ?> <?=$this->getTrans('sessions') ?></span>
                             </summary>
                             <?php if ($phase->getDescription() !== '') : ?>
@@ -61,10 +71,15 @@ $price = $program->isPaid() ? $this->getFormattedCurrency((float)$program->getPr
                             <?php endif; ?>
                             <ul class="fx-plan__sessions">
                                 <?php foreach ($sessions as $session) : ?>
-                                    <li>
+                                    <?php $isDone = $progress && $progress->isSessionDone($session->getId()); ?>
+                                    <li class="<?=$isDone ? 'is-done' : '' ?>">
                                         <span class="fx-plan__session-title">
-                                            <i class="fa-solid fa-dumbbell"></i>
-                                            <?=$this->escape($session->getDisplayTitle()) ?>
+                                            <i class="fa-solid <?=$isDone ? 'fa-circle-check' : 'fa-dumbbell' ?>"></i>
+                                            <?php if ($canViewContent) : ?>
+                                                <a href="<?=$this->getUrl(['controller' => 'training', 'action' => 'session', 'id' => $session->getId()]) ?>"><?=$this->escape($session->getDisplayTitle()) ?></a>
+                                            <?php else : ?>
+                                                <?=$this->escape($session->getDisplayTitle()) ?>
+                                            <?php endif; ?>
                                             <?php if ($session->isOptional()) : ?>
                                                 <span class="fx-badge fx-badge--soft"><?=$this->getTrans('optional') ?></span>
                                             <?php endif; ?>
@@ -86,19 +101,48 @@ $price = $program->isPaid() ? $this->getFormattedCurrency((float)$program->getPr
 
     <div class="col-lg-4">
         <aside class="fx-card fx-card--padded fx-cta">
-            <div class="fx-cta__price"><?=$price ?></div>
-            <?php if ($program->isPaid()) : ?>
-                <p class="fx-cta__note"><?=$this->getTrans('paidProgramNote') ?></p>
-            <?php endif; ?>
-            <button type="button" class="btn fx-btn fx-btn--primary w-100" disabled>
-                <i class="fa-solid fa-play"></i> <?=$this->getTrans('joinProgram') ?>
-            </button>
-            <p class="fx-cta__note"><?=$this->getTrans('joinComingSoon') ?></p>
-            <?php if (!$this->getUser()) : ?>
-                <p class="fx-cta__note">
-                    <i class="fa-solid fa-circle-info"></i> <?=$this->getTrans('joinNeedsAccount') ?>
-                    <a href="<?=$this->getUrl(['module' => 'user', 'controller' => 'login', 'action' => 'index']) ?>"><?=$this->getTrans('login') ?></a>
-                </p>
+            <?php if ($enrollment && $progress) : ?>
+                <div class="fx-eyebrow"><?=$this->getTrans($enrollment->getStatusKey()) ?></div>
+                <div class="fx-progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="<?=$progress->getPercent() ?>" aria-label="<?=$this->getTrans('progress') ?>">
+                    <div class="fx-progress__bar" style="width: <?=$progress->getPercent() ?>%"></div>
+                </div>
+                <div class="fx-progress__legend">
+                    <strong><?=$progress->getPercent() ?> %</strong>
+                    <span><?=$this->getTrans('sessionsDoneOf', $progress->getDone(), $progress->getTotal()) ?></span>
+                </div>
+                <?php if ($enrollment->grantsAccess() && $progress->getNextSession()) : ?>
+                    <p class="fx-cta__note"><?=$this->getTrans('nextSession') ?>: <?=$this->escape($progress->getNextSession()->getDisplayTitle()) ?></p>
+                    <a class="btn fx-btn fx-btn--primary w-100 mt-2" href="<?=$this->getUrl(['controller' => 'training', 'action' => 'session', 'id' => $progress->getNextSession()->getId()]) ?>">
+                        <i class="fa-solid fa-play"></i> <?=$this->getTrans($progress->getDone() > 0 ? 'continueTraining' : 'startTraining') ?>
+                    </a>
+                <?php elseif ($progress->isComplete()) : ?>
+                    <p class="fx-cta__note"><i class="fa-solid fa-trophy"></i> <?=$this->getTrans('programDoneText') ?></p>
+                <?php elseif (!$enrollment->grantsAccess()) : ?>
+                    <p class="fx-cta__note"><?=$this->getTrans('enrollmentNoAccess') ?></p>
+                <?php endif; ?>
+            <?php else : ?>
+                <div class="fx-cta__price"><?=$price ?></div>
+                <?php if ($program->isPaid()) : ?>
+                    <p class="fx-cta__note"><?=$this->getTrans('paidProgramNote') ?></p>
+                    <button type="button" class="btn fx-btn fx-btn--primary w-100" disabled>
+                        <i class="fa-solid fa-cart-shopping"></i> <?=$this->getTrans('buyProgram') ?>
+                    </button>
+                    <p class="fx-cta__note"><?=$this->getTrans('paidComingSoon') ?></p>
+                <?php elseif ($this->get('canJoin')) : ?>
+                    <form method="POST" action="<?=$this->getUrl(['action' => 'join', 'id' => $program->getId()]) ?>">
+                        <?=$this->getTokenField() ?>
+                        <button type="submit" class="btn fx-btn fx-btn--primary w-100">
+                            <i class="fa-solid fa-play"></i> <?=$this->getTrans('joinProgram') ?>
+                        </button>
+                    </form>
+                    <p class="fx-cta__note"><?=$this->getTrans('joinFreeNote') ?></p>
+                <?php endif; ?>
+                <?php if (!$this->getUser()) : ?>
+                    <p class="fx-cta__note">
+                        <i class="fa-solid fa-circle-info"></i> <?=$this->getTrans('joinNeedsAccount') ?>
+                        <a href="<?=$this->getUrl(['module' => 'user', 'controller' => 'login', 'action' => 'index']) ?>"><?=$this->getTrans('login') ?></a>
+                    </p>
+                <?php endif; ?>
             <?php endif; ?>
         </aside>
     </div>

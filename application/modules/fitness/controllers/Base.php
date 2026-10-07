@@ -8,6 +8,12 @@
 namespace Modules\Fitness\Controllers;
 
 use Ilch\Controller\Frontend;
+use Modules\Fitness\Mappers\Enrollment as EnrollmentMapper;
+use Modules\Fitness\Mappers\Program as ProgramMapper;
+use Modules\Fitness\Mappers\ProgramStructure as ProgramStructureMapper;
+use Modules\Fitness\Mappers\SessionLog as SessionLogMapper;
+use Modules\Fitness\Service\Access;
+use Modules\Fitness\Service\Progress;
 
 /**
  * Common base for all frontend controllers of the fitness module.
@@ -67,8 +73,50 @@ class Base extends Frontend
      */
     protected function canManageFitness(): bool
     {
-        $user = $this->getUser();
+        return Access::canManage($this->getUser());
+    }
 
-        return $user && ($user->isAdmin() || $user->hasAccess('module_fitness'));
+    /**
+     * Returns the programs a user takes part in, each with its progress.
+     *
+     * @param int $userId
+     * @return array<int, array{enrollment: \Modules\Fitness\Models\Enrollment, program: \Modules\Fitness\Models\Program, progress: \Modules\Fitness\Models\Progress}>
+     */
+    protected function getTrainingsOfUser(int $userId): array
+    {
+        $programMapper = new ProgramMapper();
+        $structureMapper = new ProgramStructureMapper();
+        $logMapper = new SessionLogMapper();
+
+        $trainings = [];
+        foreach ((new EnrollmentMapper())->getEnrollmentsOfUser($userId) as $enrollment) {
+            $program = $programMapper->getProgramById($enrollment->getProgramId());
+            if (!$program) {
+                continue;
+            }
+
+            $trainings[] = [
+                'enrollment' => $enrollment,
+                'program' => $program,
+                'progress' => Progress::calculate(
+                    $structureMapper->getPhasesOfProgram($program->getId()),
+                    array_keys($logMapper->getDoneSessions($enrollment->getId()))
+                ),
+            ];
+        }
+
+        return $trainings;
+    }
+
+    /**
+     * Sends guests to the login page.
+     */
+    protected function requireLogin(): void
+    {
+        if (!$this->getUser()) {
+            $this->redirect()
+                ->withMessage('loginRequired', 'info')
+                ->to(['module' => 'user', 'controller' => 'login', 'action' => 'index']);
+        }
     }
 }
