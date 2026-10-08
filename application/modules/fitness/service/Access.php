@@ -15,8 +15,7 @@ use Modules\User\Models\User;
 /**
  * Decides on the server who may see the content of a program.
  *
- * Every action that shows or changes program content asks this class. Ilch itself only checks
- * module rights after the action has run, so this check must not be left out.
+ * Every action that shows or changes program content asks this class.
  */
 class Access
 {
