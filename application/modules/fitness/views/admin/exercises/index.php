@@ -59,7 +59,7 @@ $muscleGroupNames = $this->get('muscleGroupNames');
                             <td><?=$this->getEditIcon(['action' => 'treat', 'id' => $exercise->getId()]) ?></td>
                             <td><?=$this->getDeleteIcon(['action' => 'del', 'id' => $exercise->getId()]) ?></td>
                             <td><i class="fa-solid fa-sort"></i></td>
-                            <td><?=$this->escape($exercise->getTitle()) ?></td>
+                            <td><?=$this->escape($exercise->getTitle()) ?><?php if (in_array($exercise->getId(), $this->get('sampleIds'), true)) : ?> <span class="badge bg-info text-dark"><?=$this->getTrans('sampleBadge') ?></span><?php endif; ?></td>
                             <td><?=$this->escape($exercise->getCategoryName()) ?></td>
                             <td><?=implode(', ', $muscles) ?></td>
                             <td><?=$this->getTrans($exercise->getDifficultyKey()) ?></td>

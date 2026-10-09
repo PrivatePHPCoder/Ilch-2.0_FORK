@@ -169,6 +169,30 @@ class Program extends Base
     }
 
     /**
+     * Deletes a program even if it has participants. Their participations and logged sessions are
+     * deleted with it. Programs with orders are never deleted, because orders have to stay.
+     *
+     * @param int $id
+     * @return bool false if the program has orders
+     */
+    public function deleteWithParticipants(int $id): bool
+    {
+        $hasOrders = $this->db()->select('COUNT(*)')
+            ->from('fitness_orders')
+            ->where(['program_id' => $id])
+            ->execute()
+            ->fetchCell();
+
+        if ($hasOrders) {
+            return false;
+        }
+
+        return (bool)$this->db()->delete($this->tablename)
+            ->where(['id' => $id])
+            ->execute();
+    }
+
+    /**
      * Replaces the groups that may see a program.
      *
      * @param int $programId

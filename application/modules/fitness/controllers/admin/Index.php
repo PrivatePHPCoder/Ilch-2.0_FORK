@@ -16,6 +16,7 @@ use Modules\Fitness\Mappers\Order as OrderMapper;
 use Modules\Fitness\Mappers\Program as ProgramMapper;
 use Modules\Fitness\Mappers\Workout as WorkoutMapper;
 use Modules\Fitness\Models\Order as OrderModel;
+use Modules\Fitness\Service\SampleData;
 
 class Index extends Base
 {
@@ -24,7 +25,11 @@ class Index extends Base
         $this->getLayout()->getAdminHmenu()
             ->add($this->getTranslator()->trans('menuFitness'), ['controller' => 'index', 'action' => 'index']);
 
+        $sampleData = new SampleData($this->getConfig());
+
         $this->getView()->set('ownLayout', (bool)$this->getConfig()->get('fitness_ownLayout'))
+            ->set('sampleCounts', array_map('count', $sampleData->getIds()))
+            ->set('sampleParticipants', $sampleData->getParticipantCount())
             ->set('counts', [
                 'exercises' => count((new ExerciseMapper())->getExercises()),
                 'workouts' => count((new WorkoutMapper())->getWorkouts()),

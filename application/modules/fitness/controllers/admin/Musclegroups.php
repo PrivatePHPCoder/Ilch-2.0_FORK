@@ -39,7 +39,8 @@ class Musclegroups extends Base
                 ->to(['action' => 'index']);
         }
 
-        $this->getView()->set('muscleGroups', $muscleGroupMapper->getMuscleGroups());
+        $this->getView()->set('muscleGroups', $muscleGroupMapper->getMuscleGroups())
+            ->set('sampleIds', $this->getSampleIds('muscleGroups'));
     }
 
     public function treatAction()

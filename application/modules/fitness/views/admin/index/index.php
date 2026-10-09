@@ -14,6 +14,15 @@ $sections = [
     'categories' => ['menuCategories', 'fa-solid fa-tags'],
     'musclegroups' => ['menuMuscleGroups', 'fa-solid fa-hand-fist'],
 ];
+/** @var array<string, int> $sampleCounts number of sample entries per kind */
+$sampleCounts = $this->get('sampleCounts');
+$sampleLabels = [
+    'programs' => 'menuPrograms',
+    'workouts' => 'menuWorkouts',
+    'exercises' => 'menuExercises',
+    'categories' => 'menuCategories',
+    'muscleGroups' => 'menuMuscleGroups',
+];
 ?>
 <h1><?=$this->getTrans('menuFitness') ?></h1>
 <p><?=$this->getTrans('overviewIntro') ?></p>
@@ -36,3 +45,46 @@ $sections = [
     <?=$this->getTrans($this->get('ownLayout') ? 'overviewLayoutOn' : 'overviewLayoutOff') ?>
     <a href="<?=$this->getUrl(['controller' => 'settings', 'action' => 'index']) ?>"><?=$this->getTrans('menuSettings') ?></a>
 </p>
+
+<div class="card mt-4">
+    <div class="card-body">
+        <h2 class="h5"><i class="fa-solid fa-flask"></i> <?=$this->getTrans('sampleData') ?></h2>
+        <?php if (array_sum($sampleCounts)) : ?>
+            <p><?=$this->getTrans('sampleDataInstalledInfo') ?></p>
+            <ul>
+                <?php foreach ($sampleLabels as $type => $labelKey) : ?>
+                    <?php if ($sampleCounts[$type]) : ?>
+                        <li><?=$sampleCounts[$type] ?> <?=$this->getTrans($labelKey) ?></li>
+                    <?php endif; ?>
+                <?php endforeach; ?>
+            </ul>
+            <?php if ($this->get('sampleParticipants')) : ?>
+                <p class="text-warning-emphasis"><i class="fa-solid fa-triangle-exclamation"></i> <?=$this->getTrans('sampleDataParticipants', (int)$this->get('sampleParticipants')) ?></p>
+            <?php endif; ?>
+            <form method="POST" action="<?=$this->getUrl(['controller' => 'sampledata', 'action' => 'remove']) ?>">
+                <?=$this->getTokenField() ?>
+                <button type="submit" class="btn btn-outline-danger" data-confirm="<?=$this->getTrans('sampleDataRemoveConfirm') ?>">
+                    <i class="fa-solid fa-trash-can"></i> <?=$this->getTrans('sampleDataRemove') ?>
+                </button>
+            </form>
+        <?php else : ?>
+            <p><?=$this->getTrans('sampleDataInfo') ?></p>
+            <form method="POST" action="<?=$this->getUrl(['controller' => 'sampledata', 'action' => 'install']) ?>">
+                <?=$this->getTokenField() ?>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i> <?=$this->getTrans('sampleDataInstall') ?>
+                </button>
+            </form>
+        <?php endif; ?>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $('button[data-confirm]').on('click', function (event) {
+            if (!window.confirm($(this).data('confirm'))) {
+                event.preventDefault();
+            }
+        });
+    });
+</script>

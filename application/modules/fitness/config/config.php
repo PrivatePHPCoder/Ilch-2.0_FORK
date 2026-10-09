@@ -15,6 +15,7 @@ use Modules\Admin\Models\Box as BoxModel;
 use Modules\Admin\Models\Emails as EmailsModel;
 use Modules\Fitness\Mappers\Milestone as MilestoneMapper;
 use Modules\Fitness\Service\OrderMails;
+use Modules\Fitness\Service\SampleData;
 
 class Config extends Install
 {
@@ -104,7 +105,7 @@ class Config extends Install
         }
 
         $databaseConfig = new Database($this->db());
-        $databaseConfig->delete(array_keys(self::SETTINGS));
+        $databaseConfig->delete(array_merge(array_keys(self::SETTINGS), [SampleData::CONFIG_KEY]));
 
         $this->db()->delete('emails')
             ->where(['moduleKey' => $this->config['key']])

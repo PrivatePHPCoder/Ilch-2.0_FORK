@@ -40,7 +40,7 @@ $muscleGroups = $this->get('muscleGroups');
                             <td><?=$this->getEditIcon(['action' => 'treat', 'id' => $muscleGroup->getId()]) ?></td>
                             <td><?=$this->getDeleteIcon(['action' => 'del', 'id' => $muscleGroup->getId()]) ?></td>
                             <td><i class="fa-solid fa-sort"></i></td>
-                            <td><?=$this->escape($muscleGroup->getName()) ?></td>
+                            <td><?=$this->escape($muscleGroup->getName()) ?><?php if (in_array($muscleGroup->getId(), $this->get('sampleIds'), true)) : ?> <span class="badge bg-info text-dark"><?=$this->getTrans('sampleBadge') ?></span><?php endif; ?></td>
                             <td><?=$muscleGroup->getExerciseCount() ?></td>
                         </tr>
                     <?php endforeach; ?>

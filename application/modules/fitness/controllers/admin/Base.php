@@ -8,6 +8,7 @@
 namespace Modules\Fitness\Controllers\Admin;
 
 use Ilch\Controller\Admin;
+use Modules\Fitness\Service\SampleData;
 
 /**
  * Common base for all admin controllers of the fitness module.
@@ -61,6 +62,17 @@ class Base extends Admin
 
             $this->getLayout()->addMenu($section, $items);
         }
+    }
+
+    /**
+     * Returns the ids of the sample entries of one kind, so lists can mark them.
+     *
+     * @param string $type one of SampleData::TYPES
+     * @return int[]
+     */
+    protected function getSampleIds(string $type): array
+    {
+        return (new SampleData($this->getConfig()))->getIds()[$type];
     }
 
     /**

@@ -58,7 +58,7 @@ $statusClasses = [0 => 'bg-secondary', 1 => 'bg-success', 2 => 'bg-dark'];
                             </td>
                             <td><?=$this->getDeleteIcon(['action' => 'del', 'id' => $program->getId()]) ?></td>
                             <td><i class="fa-solid fa-sort"></i></td>
-                            <td><?=$this->escape($program->getTitle()) ?></td>
+                            <td><?=$this->escape($program->getTitle()) ?><?php if (in_array($program->getId(), $this->get('sampleIds'), true)) : ?> <span class="badge bg-info text-dark"><?=$this->getTrans('sampleBadge') ?></span><?php endif; ?></td>
                             <td><span class="badge <?=$statusClasses[$program->getStatus()] ?>"><?=$this->getTrans($program->getStatusKey()) ?></span></td>
                             <td>
                                 <?php if ($program->isPaid()) : ?>

@@ -56,6 +56,7 @@ class Programs extends Base
         }
 
         $this->getView()->set('programs', $programMapper->getPrograms())
+            ->set('sampleIds', $this->getSampleIds('programs'))
             ->set('participantCounts', (new EnrollmentMapper())->getCountsPerProgram());
     }
 

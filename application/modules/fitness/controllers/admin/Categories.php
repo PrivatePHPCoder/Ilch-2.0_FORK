@@ -39,7 +39,8 @@ class Categories extends Base
                 ->to(['action' => 'index']);
         }
 
-        $this->getView()->set('categories', $categoryMapper->getCategories());
+        $this->getView()->set('categories', $categoryMapper->getCategories())
+            ->set('sampleIds', $this->getSampleIds('categories'));
     }
 
     public function treatAction()

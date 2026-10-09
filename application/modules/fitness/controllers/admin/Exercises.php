@@ -51,6 +51,7 @@ class Exercises extends Base
         }
 
         $this->getView()->set('exercises', $exerciseMapper->getExercises())
+            ->set('sampleIds', $this->getSampleIds('exercises'))
             ->set('muscleGroupNames', $muscleGroupNames);
     }
 

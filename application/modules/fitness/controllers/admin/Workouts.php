@@ -50,7 +50,8 @@ class Workouts extends Base
                 ->to(['action' => 'index']);
         }
 
-        $this->getView()->set('workouts', $workoutMapper->getWorkouts());
+        $this->getView()->set('workouts', $workoutMapper->getWorkouts())
+            ->set('sampleIds', $this->getSampleIds('workouts'));
     }
 
     public function treatAction()

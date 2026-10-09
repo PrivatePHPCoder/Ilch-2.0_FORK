@@ -39,7 +39,7 @@ $workouts = $this->get('workouts');
                             <td><?=$this->getDeleteCheckbox('check_workouts', $workout->getId()) ?></td>
                             <td><?=$this->getEditIcon(['action' => 'treat', 'id' => $workout->getId()]) ?></td>
                             <td><?=$this->getDeleteIcon(['action' => 'del', 'id' => $workout->getId()]) ?></td>
-                            <td><?=$this->escape($workout->getTitle()) ?></td>
+                            <td><?=$this->escape($workout->getTitle()) ?><?php if (in_array($workout->getId(), $this->get('sampleIds'), true)) : ?> <span class="badge bg-info text-dark"><?=$this->getTrans('sampleBadge') ?></span><?php endif; ?></td>
                             <td><?=$workout->getExerciseCount() ?></td>
                             <td><?=$workout->getDurationMin() !== null ? $workout->getDurationMin() . ' ' . $this->getTrans('minutesShort') : '' ?></td>
                             <td><?=$this->getTrans($workout->getDifficultyKey()) ?></td>

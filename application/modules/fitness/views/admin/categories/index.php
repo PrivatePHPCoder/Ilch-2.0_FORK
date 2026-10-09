@@ -40,7 +40,7 @@ $categories = $this->get('categories');
                             <td><?=$this->getEditIcon(['action' => 'treat', 'id' => $category->getId()]) ?></td>
                             <td><?=$this->getDeleteIcon(['action' => 'del', 'id' => $category->getId()]) ?></td>
                             <td><i class="fa-solid fa-sort"></i></td>
-                            <td><?=$this->escape($category->getName()) ?></td>
+                            <td><?=$this->escape($category->getName()) ?><?php if (in_array($category->getId(), $this->get('sampleIds'), true)) : ?> <span class="badge bg-info text-dark"><?=$this->getTrans('sampleBadge') ?></span><?php endif; ?></td>
                             <td><?=$category->getExerciseCount() ?></td>
                         </tr>
                     <?php endforeach; ?>
