@@ -8,7 +8,9 @@
 namespace Modules\Fitness\Controllers\Admin;
 
 use Modules\Fitness\Mappers\Category as CategoryMapper;
+use Modules\Fitness\Mappers\Enrollment as EnrollmentMapper;
 use Modules\Fitness\Mappers\Exercise as ExerciseMapper;
+use Modules\Fitness\Mappers\Milestone as MilestoneMapper;
 use Modules\Fitness\Mappers\MuscleGroup as MuscleGroupMapper;
 use Modules\Fitness\Mappers\Program as ProgramMapper;
 use Modules\Fitness\Mappers\Workout as WorkoutMapper;
@@ -25,6 +27,8 @@ class Index extends Base
                 'exercises' => count((new ExerciseMapper())->getExercises()),
                 'workouts' => count((new WorkoutMapper())->getWorkouts()),
                 'programs' => count((new ProgramMapper())->getPrograms()),
+                'participants' => array_sum((new EnrollmentMapper())->getCountsPerProgram()),
+                'milestones' => count((new MilestoneMapper())->getMilestones()),
                 'categories' => count((new CategoryMapper())->getCategories()),
                 'musclegroups' => count((new MuscleGroupMapper())->getMuscleGroups()),
             ]);

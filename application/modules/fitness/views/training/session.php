@@ -45,6 +45,7 @@ $formatSeconds = function (int $seconds): string {
 <?php if (!$enrollment) : ?>
     <div class="alert alert-warning"><i class="fa-solid fa-eye"></i> <?=$this->getTrans('previewSession') ?></div>
 <?php endif; ?>
+<?php $this->load('partials/reachedMilestones.php', ['milestones' => $this->get('reachedMilestones')]); ?>
 
 <header class="fx-session-head">
     <div class="fx-eyebrow">

@@ -8,6 +8,7 @@
 namespace Modules\Fitness\Mappers;
 
 use Ilch\Date;
+use Ilch\Pagination;
 use Modules\Fitness\Models\Enrollment as EnrollmentModel;
 
 class Enrollment extends Base
@@ -22,18 +23,28 @@ class Enrollment extends Base
      *
      * @param array $where
      * @param array $orderBy
+     * @param Pagination|null $pagination
      * @return EnrollmentModel[]
      */
-    public function getEntriesBy(array $where = [], array $orderBy = ['en.started_at' => 'DESC', 'en.id' => 'DESC']): array
+    public function getEntriesBy(array $where = [], array $orderBy = ['en.started_at' => 'DESC', 'en.id' => 'DESC'], ?Pagination $pagination = null): array
     {
-        $rows = $this->db()->select(['en.id', 'en.program_id', 'en.user_id', 'en.status', 'en.source', 'en.order_id', 'en.started_at', 'en.completed_at', 'en.access_until'])
+        $select = $this->db()->select(['en.id', 'en.program_id', 'en.user_id', 'en.status', 'en.source', 'en.order_id', 'en.started_at', 'en.completed_at', 'en.access_until'])
             ->from(['en' => $this->tablename])
             ->join(['p' => 'fitness_programs'], 'p.id = en.program_id', 'INNER', ['program_title' => 'p.title'])
             ->join(['u' => 'users'], 'u.id = en.user_id', 'LEFT', ['user_name' => 'u.name'])
             ->where($where)
-            ->order($orderBy)
-            ->execute()
-            ->fetchRows();
+            ->order($orderBy);
+
+        if ($pagination !== null) {
+            $select->limit($pagination->getLimit())
+                ->useFoundRows();
+            $result = $select->execute();
+            $pagination->setRows($result->getFoundRows());
+        } else {
+            $result = $select->execute();
+        }
+
+        $rows = $result->fetchRows();
 
         $enrollments = [];
         foreach ($rows as $row) {

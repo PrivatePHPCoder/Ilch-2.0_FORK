@@ -10,6 +10,7 @@ $navigation = [
 ];
 if ($this->getUser()) {
     $navigation['training'] = ['myTraining', 'fa-solid fa-play'];
+    $navigation['milestones'] = ['navMilestones', 'fa-solid fa-medal'];
 }
 ?>
 <!DOCTYPE html>

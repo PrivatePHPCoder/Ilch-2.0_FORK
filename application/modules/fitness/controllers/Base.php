@@ -8,12 +8,13 @@
 namespace Modules\Fitness\Controllers;
 
 use Ilch\Controller\Frontend;
-use Modules\Fitness\Mappers\Enrollment as EnrollmentMapper;
-use Modules\Fitness\Mappers\Program as ProgramMapper;
-use Modules\Fitness\Mappers\ProgramStructure as ProgramStructureMapper;
-use Modules\Fitness\Mappers\SessionLog as SessionLogMapper;
+use Modules\Fitness\Mappers\Milestone as MilestoneMapper;
+use Modules\Fitness\Models\Milestone as MilestoneModel;
 use Modules\Fitness\Service\Access;
-use Modules\Fitness\Service\Progress;
+use Modules\Fitness\Service\Milestones;
+use Modules\Fitness\Service\Trainings;
+use Modules\User\Mappers\Notifications as NotificationsMapper;
+use Modules\User\Models\Notification as NotificationModel;
 
 /**
  * Common base for all frontend controllers of the fitness module.
@@ -26,6 +27,11 @@ class Base extends Frontend
      * Group id of guests.
      */
     private const GROUP_GUEST = 3;
+
+    /**
+     * Session key for milestones that were just reached.
+     */
+    private const SESSION_REACHED_MILESTONES = 'fitness_reachedMilestones';
 
     public function init()
     {
@@ -84,28 +90,78 @@ class Base extends Frontend
      */
     protected function getTrainingsOfUser(int $userId): array
     {
-        $programMapper = new ProgramMapper();
-        $structureMapper = new ProgramStructureMapper();
-        $logMapper = new SessionLogMapper();
+        return (new Trainings())->getOfUser($userId);
+    }
 
-        $trainings = [];
-        foreach ((new EnrollmentMapper())->getEnrollmentsOfUser($userId) as $enrollment) {
-            $program = $programMapper->getProgramById($enrollment->getProgramId());
-            if (!$program) {
-                continue;
-            }
+    /**
+     * Collects the milestones of a user for the overview pages. Milestones the user has reached
+     * without receiving them yet (for example because they were created later) are stored now.
+     *
+     * @param int $userId
+     * @param array $trainings result of getTrainingsOfUser()
+     * @return array{milestones: MilestoneModel[], achievements: array<int, string>, stats: array, totals: array{sessions: int, phases: int, programs: int}}
+     */
+    protected function getMilestoneOverview(int $userId, array $trainings): array
+    {
+        $stats = Milestones::getStatsOfTrainings($trainings);
+        (new Milestones())->evaluate($userId, null, $stats);
 
-            $trainings[] = [
-                'enrollment' => $enrollment,
-                'program' => $program,
-                'progress' => Progress::calculate(
-                    $structureMapper->getPhasesOfProgram($program->getId()),
-                    array_keys($logMapper->getDoneSessions($enrollment->getId()))
-                ),
-            ];
+        $milestoneMapper = new MilestoneMapper();
+
+        return [
+            'milestones' => Milestones::getRelevantMilestones($milestoneMapper->getActiveMilestones(), $stats),
+            'achievements' => $milestoneMapper->getAchievementsOfUser($userId),
+            'stats' => $stats,
+            'totals' => Milestones::getTotals($stats),
+        ];
+    }
+
+    /**
+     * Tells the user about new milestones: as a notification of the website and on the next
+     * page of the fitness area (see takeReachedMilestones()).
+     *
+     * @param int $userId
+     * @param MilestoneModel[] $milestones
+     */
+    protected function announceMilestones(int $userId, array $milestones): void
+    {
+        if (!$milestones) {
+            return;
         }
 
-        return $trainings;
+        $url = $this->getLayout()->getUrl(['module' => 'fitness', 'controller' => 'milestones', 'action' => 'index']);
+        $notificationsMapper = new NotificationsMapper();
+
+        foreach ($milestones as $milestone) {
+            $_SESSION[self::SESSION_REACHED_MILESTONES][] = $milestone->getId();
+
+            // The title goes in as argument, so a "%" in an own title can't break the text.
+            $message = $this->getTranslator()->trans('milestoneNotification', $milestone->getDisplayTitle($this->getTranslator()));
+            $notificationsMapper->addNotification((new NotificationModel())
+                ->setUserId($userId)
+                ->setModule('fitness')
+                ->setMessage(mb_substr($message, 0, 255))
+                ->setURL($url)
+                ->setType('milestoneReached'));
+        }
+    }
+
+    /**
+     * Returns the milestones announced by announceMilestones() and forgets them, so they are
+     * shown only once.
+     *
+     * @return MilestoneModel[]
+     */
+    protected function takeReachedMilestones(): array
+    {
+        $ids = array_map('intval', (array)($_SESSION[self::SESSION_REACHED_MILESTONES] ?? []));
+        unset($_SESSION[self::SESSION_REACHED_MILESTONES]);
+
+        if (!$ids) {
+            return [];
+        }
+
+        return (new MilestoneMapper())->getEntriesBy(['m.id' => array_values(array_unique($ids))]);
     }
 
     /**

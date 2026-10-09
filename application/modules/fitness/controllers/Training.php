@@ -18,6 +18,7 @@ use Modules\Fitness\Models\Enrollment as EnrollmentModel;
 use Modules\Fitness\Models\Program as ProgramModel;
 use Modules\Fitness\Models\ProgramSession as ProgramSessionModel;
 use Modules\Fitness\Service\Access;
+use Modules\Fitness\Service\Milestones;
 use Modules\Fitness\Service\Progress;
 
 /**
@@ -105,6 +106,7 @@ class Training extends Base
             ->set('enrollment', $enrollment)
             ->set('progress', $progress)
             ->set('doneAt', $doneSessions[$session->getId()] ?? null)
+            ->set('reachedMilestones', $this->takeReachedMilestones())
             ->set('previousSession', $index !== false && $index > 0 ? $orderedSessions[$index - 1] : null)
             ->set('nextSession', $index !== false && isset($orderedSessions[$index + 1]) ? $orderedSessions[$index + 1] : null);
     }
@@ -129,6 +131,9 @@ class Training extends Base
             (new EnrollmentMapper())->updateStatus($enrollment, EnrollmentModel::STATUS_COMPLETED);
             $message = 'programCompleted';
         }
+
+        $userId = $this->getUser()->getId();
+        $this->announceMilestones($userId, (new Milestones())->evaluate($userId, $enrollment->getId()));
 
         $this->redirect()
             ->withMessage($message)

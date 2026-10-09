@@ -9,6 +9,7 @@ namespace Modules\Fitness\Config;
 
 use Ilch\Config\Database as DatabaseConfig;
 use Modules\Admin\Config\Config as AdminConfig;
+use Modules\Fitness\Mappers\Milestone as MilestoneMapper;
 use Modules\User\Config\Config as UserConfig;
 use PHPUnit\Ilch\DatabaseTestCase;
 
@@ -41,6 +42,33 @@ class ConfigTest extends DatabaseTestCase
 
         $databaseConfig = new DatabaseConfig($this->db);
         self::assertSame('1', $databaseConfig->get('fitness_ownLayout', true));
+    }
+
+    /**
+     * Tests that install() creates the default milestones.
+     */
+    public function testInstallCreatesDefaultMilestones()
+    {
+        $this->out->install();
+
+        self::assertSame(count(MilestoneMapper::DEFAULTS), $this->countRows('fitness_milestones', []));
+    }
+
+    /**
+     * Tests that the update from 1.0.0 adds the default milestones and registers the box, and that
+     * running it twice changes nothing.
+     */
+    public function testUpdateFrom100AddsMilestonesAndBoxOnce()
+    {
+        $this->db->insert('modules')
+            ->values(['key' => 'fitness', 'version' => '1.0.0', 'icon_small' => 'fa-solid fa-dumbbell'])
+            ->execute();
+
+        $this->out->getUpdate('1.0.0');
+        $this->out->getUpdate('1.0.0');
+
+        self::assertSame(count(MilestoneMapper::DEFAULTS), $this->countRows('fitness_milestones', []));
+        self::assertSame(2, $this->countRows('modules_boxes_content', ['module' => 'fitness', 'key' => 'progress']));
     }
 
     /**

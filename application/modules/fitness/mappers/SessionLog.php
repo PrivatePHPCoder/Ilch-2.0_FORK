@@ -43,6 +43,34 @@ class SessionLog extends Base
     }
 
     /**
+     * Same as getDoneSessions(), but for several enrollments with one query.
+     *
+     * @param int[] $enrollmentIds
+     * @return array<int, array<int, string>> enrollment id => (session id => date and time it was marked as done)
+     */
+    public function getDoneSessionsOfEnrollments(array $enrollmentIds): array
+    {
+        $enrollmentIds = array_values(array_unique(array_map('intval', $enrollmentIds)));
+        if (!$enrollmentIds) {
+            return [];
+        }
+
+        $rows = $this->db()->select(['enrollment_id', 'program_session_id', 'completed_at'])
+            ->from($this->tablename)
+            ->where(['enrollment_id' => $enrollmentIds])
+            ->order(['completed_at' => 'ASC', 'id' => 'ASC'])
+            ->execute()
+            ->fetchRows();
+
+        $sessions = array_fill_keys($enrollmentIds, []);
+        foreach ($rows as $row) {
+            $sessions[(int)$row['enrollment_id']][(int)$row['program_session_id']] = $row['completed_at'];
+        }
+
+        return $sessions;
+    }
+
+    /**
      * Marks a session as done.
      *
      * @param int $enrollmentId

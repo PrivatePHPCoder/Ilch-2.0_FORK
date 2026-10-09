@@ -8,6 +8,8 @@ $sections = [
     'exercises' => ['menuExercises', 'fa-solid fa-person-running'],
     'workouts' => ['menuWorkouts', 'fa-solid fa-list-check'],
     'programs' => ['menuPrograms', 'fa-solid fa-calendar-week'],
+    'participants' => ['menuParticipants', 'fa-solid fa-users'],
+    'milestones' => ['menuMilestones', 'fa-solid fa-medal'],
     'categories' => ['menuCategories', 'fa-solid fa-tags'],
     'musclegroups' => ['menuMuscleGroups', 'fa-solid fa-hand-fist'],
 ];
@@ -17,7 +19,7 @@ $sections = [
 
 <div class="row mb-3">
     <?php foreach ($sections as $controller => [$nameKey, $icon]) : ?>
-        <div class="col-6 col-md-4 col-xl mb-3">
+        <div class="col-6 col-md-4 col-xl-3 mb-3">
             <a class="card text-decoration-none h-100" href="<?=$this->getUrl(['controller' => $controller, 'action' => 'index']) ?>">
                 <div class="card-body">
                     <div class="fs-2 fw-bold"><?=$counts[$controller] ?></div>
@@ -26,11 +28,6 @@ $sections = [
             </a>
         </div>
     <?php endforeach; ?>
-</div>
-
-<div class="alert alert-info">
-    <i class="fa-solid fa-circle-info"></i>
-    <?=$this->getTrans('overviewNextSteps') ?>
 </div>
 
 <p>

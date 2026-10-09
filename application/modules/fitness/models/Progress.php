@@ -111,6 +111,14 @@ class Progress
         return $this->currentPhase;
     }
 
+    /**
+     * @return int number of done sessions, including optional ones
+     */
+    public function getDoneSessionCount(): int
+    {
+        return count($this->doneSessionIds);
+    }
+
     public function isSessionDone(int $sessionId): bool
     {
         return in_array($sessionId, $this->doneSessionIds, true);

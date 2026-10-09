@@ -28,6 +28,8 @@ class Base extends Admin
         'exercises' => ['name' => 'menuExercises', 'icon' => 'fa-solid fa-person-running', 'add' => true],
         'workouts' => ['name' => 'menuWorkouts', 'icon' => 'fa-solid fa-list-check', 'add' => true],
         'programs' => ['name' => 'menuPrograms', 'icon' => 'fa-solid fa-calendar-week', 'add' => true],
+        'participants' => ['name' => 'menuParticipants', 'icon' => 'fa-solid fa-users'],
+        'milestones' => ['name' => 'menuMilestones', 'icon' => 'fa-solid fa-medal', 'add' => true],
         'categories' => ['name' => 'menuCategories', 'icon' => 'fa-solid fa-tags', 'add' => true],
         'musclegroups' => ['name' => 'menuMuscleGroups', 'icon' => 'fa-solid fa-hand-fist', 'add' => true],
         'settings' => ['name' => 'menuSettings', 'icon' => 'fa-solid fa-gears'],

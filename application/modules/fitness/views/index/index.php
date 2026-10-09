@@ -6,6 +6,10 @@
 $programs = $this->get('programs');
 /** @var \Modules\User\Models\User|null $user */
 $user = $this->get('user');
+/** @var array|null $overview see Base::getMilestoneOverview() */
+$overview = $this->get('overview');
+/** @var \Modules\Fitness\Models\Milestone[] $latestMilestones */
+$latestMilestones = $this->get('latestMilestones');
 ?>
 <section class="fx-hero">
     <div class="fx-hero__content">
@@ -54,6 +58,27 @@ $user = $this->get('user');
             <h2 class="fx-section-title"><?=$this->getTrans('myProgress') ?></h2>
             <p class="mb-0"><?=$this->getTrans('myProgressEmpty') ?></p>
         </div>
+    </section>
+<?php endif; ?>
+
+<?php if ($overview && $overview['milestones']) : ?>
+    <section class="fx-section">
+        <div class="fx-section-head">
+            <h2 class="fx-section-title">
+                <?=$this->getTrans('myMilestones') ?>
+                <span class="fx-badge fx-badge--soft"><?=(int)$this->get('reachedCount') ?> / <?=count($overview['milestones']) ?></span>
+            </h2>
+            <a href="<?=$this->getUrl(['controller' => 'milestones', 'action' => 'index']) ?>"><?=$this->getTrans('allMilestones') ?> <i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+        <?php if ($latestMilestones) : ?>
+            <div class="fx-milestones">
+                <?php foreach ($latestMilestones as $milestone) : ?>
+                    <?php $this->load('partials/milestone.php', ['milestone' => $milestone, 'achievedAt' => $overview['achievements'][$milestone->getId()]]); ?>
+                <?php endforeach; ?>
+            </div>
+        <?php else : ?>
+            <p class="fx-empty"><?=$this->getTrans('noMilestonesYet') ?></p>
+        <?php endif; ?>
     </section>
 <?php endif; ?>
 

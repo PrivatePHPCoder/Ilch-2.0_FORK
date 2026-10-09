@@ -2,17 +2,15 @@
 
 /** @var \Ilch\View $this */
 
-/** @var \Modules\Fitness\Models\Program[] $programs */
-$programs = $this->get('programs');
-/** @var array<int, int> $participantCounts program id => number of participants */
-$participantCounts = $this->get('participantCounts');
-$statusClasses = [0 => 'bg-secondary', 1 => 'bg-success', 2 => 'bg-dark'];
+/** @var \Modules\Fitness\Models\Milestone[] $milestones */
+$milestones = $this->get('milestones');
 ?>
 <h1>
-    <?=$this->getTrans('menuPrograms') ?>
+    <?=$this->getTrans('menuMilestones') ?>
     <a class="badge rounded-pill bg-secondary" href="<?=$this->getUrl(['action' => 'treat']) ?>" title="<?=$this->getTrans('add') ?>"><i class="fa-solid fa-plus"></i></a>
 </h1>
-<?php if ($programs) : ?>
+<p><?=$this->getTrans('milestonesIntro') ?></p>
+<?php if ($milestones) : ?>
     <p class="text-muted"><?=$this->getTrans('sortInfo') ?></p>
     <form method="POST">
         <?=$this->getTokenField() ?>
@@ -29,50 +27,48 @@ $statusClasses = [0 => 'bg-secondary', 1 => 'bg-success', 2 => 'bg-dark'];
                     <col>
                     <col>
                     <col>
-                    <col>
                 </colgroup>
                 <thead>
                     <tr>
-                        <th><?=$this->getCheckAllCheckbox('check_programs') ?></th>
+                        <th><?=$this->getCheckAllCheckbox('check_milestones') ?></th>
                         <th></th>
                         <th></th>
                         <th></th>
                         <th></th>
                         <th><?=$this->getTrans('title') ?></th>
+                        <th><?=$this->getTrans('milestoneCondition') ?></th>
+                        <th><?=$this->getTrans('milestoneScope') ?></th>
                         <th><?=$this->getTrans('status') ?></th>
-                        <th><?=$this->getTrans('accessType') ?></th>
-                        <th><?=$this->getTrans('phases') ?></th>
-                        <th><?=$this->getTrans('sessions') ?></th>
-                        <th><?=$this->getTrans('menuParticipants') ?></th>
+                        <th><?=$this->getTrans('milestoneAchievedCount') ?></th>
                     </tr>
                 </thead>
                 <tbody>
-                    <?php foreach ($programs as $program) : ?>
+                    <?php foreach ($milestones as $milestone) : ?>
                         <tr>
                             <td>
-                                <input type="hidden" name="items[]" value="<?=$program->getId() ?>">
-                                <?=$this->getDeleteCheckbox('check_programs', $program->getId()) ?>
+                                <input type="hidden" name="items[]" value="<?=$milestone->getId() ?>">
+                                <?=$this->getDeleteCheckbox('check_milestones', $milestone->getId()) ?>
                             </td>
-                            <td><?=$this->getEditIcon(['action' => 'treat', 'id' => $program->getId()]) ?></td>
-                            <td>
-                                <a href="<?=$this->getUrl(['action' => 'structure', 'id' => $program->getId()]) ?>" title="<?=$this->getTrans('programStructure') ?>">
-                                    <span class="fa-solid fa-calendar-week text-info"></span>
-                                </a>
-                            </td>
-                            <td><?=$this->getDeleteIcon(['action' => 'del', 'id' => $program->getId()]) ?></td>
+                            <td><?=$this->getEditIcon(['action' => 'treat', 'id' => $milestone->getId()]) ?></td>
+                            <td><?=$this->getDeleteIcon(['action' => 'del', 'id' => $milestone->getId()]) ?></td>
                             <td><i class="fa-solid fa-sort"></i></td>
-                            <td><?=$this->escape($program->getTitle()) ?></td>
-                            <td><span class="badge <?=$statusClasses[$program->getStatus()] ?>"><?=$this->getTrans($program->getStatusKey()) ?></span></td>
+                            <td><i class="<?=$this->escape($milestone->getIcon()) ?> text-warning"></i></td>
                             <td>
-                                <?php if ($program->isPaid()) : ?>
-                                    <?=$this->getFormattedCurrency((float)$program->getPrice(), $program->getCurrency()) ?>
-                                <?php else : ?>
-                                    <?=$this->getTrans('accessFree') ?>
+                                <?=$this->escape($milestone->getDisplayTitle($this->getTranslator())) ?>
+                                <?php if ($milestone->getTitle() === '') : ?>
+                                    <small class="text-muted">(<?=$this->getTrans('milestoneAutoTitle') ?>)</small>
                                 <?php endif; ?>
                             </td>
-                            <td><?=$program->getPhaseCount() ?></td>
-                            <td><?=$program->getSessionCount() ?></td>
-                            <td><a href="<?=$this->getUrl(['controller' => 'participants', 'action' => 'index', 'program' => $program->getId()]) ?>"><?=$participantCounts[$program->getId()] ?? 0 ?></a></td>
+                            <td><?=$this->getTrans($milestone->getConditionKey(), $milestone->getThreshold()) ?></td>
+                            <td><?=$milestone->isForAllPrograms() ? $this->getTrans('milestoneAllPrograms') : $this->escape($milestone->getProgramTitle()) ?></td>
+                            <td>
+                                <?php if ($milestone->isActive()) : ?>
+                                    <span class="badge bg-success"><?=$this->getTrans('active') ?></span>
+                                <?php else : ?>
+                                    <span class="badge bg-secondary"><?=$this->getTrans('inactive') ?></span>
+                                <?php endif; ?>
+                            </td>
+                            <td><?=$milestone->getAchievedCount() ?></td>
                         </tr>
                     <?php endforeach; ?>
                 </tbody>
@@ -100,11 +96,17 @@ $statusClasses = [0 => 'bg-secondary', 1 => 'bg-success', 2 => 'bg-dark'];
             placeholder: 'table-sort-drop',
             forcePlaceholderSize: true,
             'start': function (event, ui) {
-                ui.placeholder.html("<td colspan='11'></td>");
+                ui.placeholder.html("<td colspan='10'></td>");
                 ui.placeholder.height(ui.item.height());
             }
         }).disableSelection();
     </script>
 <?php else : ?>
-    <p><?=$this->getTrans('noPrograms') ?></p>
+    <p><?=$this->getTrans('noMilestones') ?></p>
+    <form method="POST">
+        <?=$this->getTokenField() ?>
+        <button type="submit" class="btn btn-outline-secondary" name="createDefaults" value="1">
+            <i class="fa-solid fa-wand-magic-sparkles"></i> <?=$this->getTrans('milestoneCreateDefaults') ?>
+        </button>
+    </form>
 <?php endif; ?>

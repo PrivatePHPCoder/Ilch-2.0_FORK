@@ -110,6 +110,21 @@ class EnrollmentTest extends DatabaseTestCase
         self::assertCount(0, (new SessionLog())->getDoneSessions($ben->getId()));
     }
 
+    public function testDoneSessionsOfSeveralEnrollmentsAtOnce()
+    {
+        $anna = $this->out->enroll($this->programId, 5);
+        $ben = $this->out->enroll($this->programId, 6);
+        $logMapper = new SessionLog();
+        $logMapper->markDone($anna->getId(), $this->sessionIds[0]);
+        $logMapper->markDone($anna->getId(), $this->sessionIds[1]);
+
+        $sessions = $logMapper->getDoneSessionsOfEnrollments([$anna->getId(), $ben->getId()]);
+
+        self::assertSame($this->sessionIds, array_keys($sessions[$anna->getId()]));
+        self::assertSame([], $sessions[$ben->getId()], 'Enrollments without logs are in the result as well.');
+        self::assertSame([], $logMapper->getDoneSessionsOfEnrollments([]));
+    }
+
     public function testAccessNeedsAnActiveOrCompletedEnrollment()
     {
         $access = new Access();

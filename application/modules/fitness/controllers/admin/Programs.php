@@ -9,6 +9,7 @@ namespace Modules\Fitness\Controllers\Admin;
 
 use Ilch\Validation;
 use Ilch\Validation\ErrorBag;
+use Modules\Fitness\Mappers\Enrollment as EnrollmentMapper;
 use Modules\Fitness\Mappers\Program as ProgramMapper;
 use Modules\Fitness\Mappers\ProgramStructure as ProgramStructureMapper;
 use Modules\Fitness\Mappers\Workout as WorkoutMapper;
@@ -54,7 +55,8 @@ class Programs extends Base
                 ->to(['action' => 'index']);
         }
 
-        $this->getView()->set('programs', $programMapper->getPrograms());
+        $this->getView()->set('programs', $programMapper->getPrograms())
+            ->set('participantCounts', (new EnrollmentMapper())->getCountsPerProgram());
     }
 
     public function treatAction()

@@ -9,12 +9,15 @@ namespace Modules\Fitness\Config;
 
 use Ilch\Config\Database;
 use Ilch\Config\Install;
+use Modules\Admin\Mappers\Box as BoxMapper;
+use Modules\Admin\Models\Box as BoxModel;
+use Modules\Fitness\Mappers\Milestone as MilestoneMapper;
 
 class Config extends Install
 {
     public array $config = [
         'key' => 'fitness',
-        'version' => '1.0.0',
+        'version' => '1.1.0',
         'icon_small' => 'fa-solid fa-dumbbell',
         'author' => 'PrivatePHPCoder',
         'languages' => [
@@ -25,6 +28,16 @@ class Config extends Install
             'en_EN' => [
                 'name' => 'Fitness',
                 'description' => 'Exercises, workouts and training programs with enrollment, progress and milestones.',
+            ],
+        ],
+        'boxes' => [
+            'progress' => [
+                'de_DE' => [
+                    'name' => 'Mein Fitness-Fortschritt',
+                ],
+                'en_EN' => [
+                    'name' => 'My fitness progress',
+                ],
             ],
         ],
         'ilchCore' => '2.2.20',
@@ -64,6 +77,8 @@ class Config extends Install
 
         $databaseConfig = new Database($this->db());
         $databaseConfig->set('fitness_ownLayout', '1');
+
+        (new MilestoneMapper())->createDefaults();
     }
 
     public function uninstall(): void
@@ -84,6 +99,26 @@ class Config extends Install
     public function getTables(): array
     {
         return self::TABLES;
+    }
+
+    /**
+     * Registers the boxes of this module that are still missing. The module manager only
+     * does this on installation, so updates that bring a new box call this method.
+     */
+    private function installBoxes(): void
+    {
+        $boxMapper = new BoxMapper();
+        $boxModel = (new BoxModel())->setModule($this->config['key']);
+
+        foreach ($this->config['boxes'] as $key => $names) {
+            if (!$boxMapper->modulesBoxExists($key, $this->config['key'])) {
+                $boxModel->addContent($key, $names);
+            }
+        }
+
+        if ($boxModel->getContent()) {
+            $boxMapper->install($boxModel);
+        }
     }
 
     public function getInstallSql(): string
@@ -349,6 +384,9 @@ class Config extends Install
     {
         switch ($installedVersion) {
             case '1.0.0':
+                // Milestones and the progress box came with 1.1.0.
+                (new MilestoneMapper())->createDefaults();
+                $this->installBoxes();
         }
 
         return '"' . $this->config['key'] . '" Update-function executed.';
