@@ -10,14 +10,17 @@ namespace Modules\Fitness\Config;
 use Ilch\Config\Database;
 use Ilch\Config\Install;
 use Modules\Admin\Mappers\Box as BoxMapper;
+use Modules\Admin\Mappers\Emails as EmailsMapper;
 use Modules\Admin\Models\Box as BoxModel;
+use Modules\Admin\Models\Emails as EmailsModel;
 use Modules\Fitness\Mappers\Milestone as MilestoneMapper;
+use Modules\Fitness\Service\OrderMails;
 
 class Config extends Install
 {
     public array $config = [
         'key' => 'fitness',
-        'version' => '1.1.0',
+        'version' => '1.2.0',
         'icon_small' => 'fa-solid fa-dumbbell',
         'author' => 'PrivatePHPCoder',
         'languages' => [
@@ -71,14 +74,27 @@ class Config extends Install
         'fitness_categories',
     ];
 
+    /**
+     * Settings of this module with their default values.
+     *
+     * @var array<string, string>
+     */
+    public const SETTINGS = [
+        'fitness_ownLayout' => '1',
+        'fitness_payTransfer' => '0',
+        'fitness_bankDetails' => '',
+        'fitness_payPaypalMe' => '',
+        'fitness_paymentInfo' => '',
+        'fitness_orderNotifyEmail' => '',
+    ];
+
     public function install(): void
     {
         $this->db()->queryMulti($this->getInstallSql());
 
-        $databaseConfig = new Database($this->db());
-        $databaseConfig->set('fitness_ownLayout', '1');
-
+        $this->installSettings();
         (new MilestoneMapper())->createDefaults();
+        $this->installMailTemplates();
     }
 
     public function uninstall(): void
@@ -88,7 +104,11 @@ class Config extends Install
         }
 
         $databaseConfig = new Database($this->db());
-        $databaseConfig->delete('fitness_ownLayout');
+        $databaseConfig->delete(array_keys(self::SETTINGS));
+
+        $this->db()->delete('emails')
+            ->where(['moduleKey' => $this->config['key']])
+            ->execute();
     }
 
     /**
@@ -118,6 +138,43 @@ class Config extends Install
 
         if ($boxModel->getContent()) {
             $boxMapper->install($boxModel);
+        }
+    }
+
+    /**
+     * Stores the settings that don't exist yet with their default value. Existing values stay.
+     */
+    private function installSettings(): void
+    {
+        $databaseConfig = new Database($this->db());
+
+        foreach (self::SETTINGS as $key => $default) {
+            if ($databaseConfig->get($key, true) === null) {
+                $databaseConfig->set($key, $default);
+            }
+        }
+    }
+
+    /**
+     * Adds the e-mail templates that don't exist yet. Templates an admin has changed stay as they are.
+     */
+    private function installMailTemplates(): void
+    {
+        $emailsMapper = new EmailsMapper();
+
+        foreach (OrderMails::TEMPLATES as $type => $locales) {
+            foreach ($locales as $locale => $template) {
+                if ($emailsMapper->getEmailsByKeyTypeLocale($this->config['key'], $type, $locale)) {
+                    continue;
+                }
+
+                $emailsMapper->save((new EmailsModel())
+                    ->setModuleKey($this->config['key'])
+                    ->setType($type)
+                    ->setDesc($template['desc'])
+                    ->setText($template['text'])
+                    ->setLocale($locale));
+            }
         }
     }
 
@@ -387,6 +444,11 @@ class Config extends Install
                 // Milestones and the progress box came with 1.1.0.
                 (new MilestoneMapper())->createDefaults();
                 $this->installBoxes();
+                // no break
+            case '1.1.0':
+                // Paid programs with payment settings and e-mails came with 1.2.0.
+                $this->installSettings();
+                $this->installMailTemplates();
         }
 
         return '"' . $this->config['key'] . '" Update-function executed.';

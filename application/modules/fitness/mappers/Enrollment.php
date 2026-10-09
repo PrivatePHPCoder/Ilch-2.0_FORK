@@ -145,6 +145,24 @@ class Enrollment extends Base
     }
 
     /**
+     * Stores where the participation comes from, for example from a paid order.
+     *
+     * @param EnrollmentModel $enrollment
+     * @param int $source one of EnrollmentModel::SOURCE_*
+     * @param int|null $orderId
+     */
+    public function updateSource(EnrollmentModel $enrollment, int $source, ?int $orderId): void
+    {
+        $enrollment->setSource($source)
+            ->setOrderId($orderId);
+
+        $this->updateRow($this->tablename, $enrollment->getId(), [
+            'source' => $enrollment->getSource(),
+            'order_id' => $enrollment->getOrderId(),
+        ]);
+    }
+
+    /**
      * Returns the number of participants per program.
      *
      * @return array<int, int> program id => number of enrollments

@@ -12,8 +12,10 @@ use Modules\Fitness\Mappers\Enrollment as EnrollmentMapper;
 use Modules\Fitness\Mappers\Exercise as ExerciseMapper;
 use Modules\Fitness\Mappers\Milestone as MilestoneMapper;
 use Modules\Fitness\Mappers\MuscleGroup as MuscleGroupMapper;
+use Modules\Fitness\Mappers\Order as OrderMapper;
 use Modules\Fitness\Mappers\Program as ProgramMapper;
 use Modules\Fitness\Mappers\Workout as WorkoutMapper;
+use Modules\Fitness\Models\Order as OrderModel;
 
 class Index extends Base
 {
@@ -28,6 +30,7 @@ class Index extends Base
                 'workouts' => count((new WorkoutMapper())->getWorkouts()),
                 'programs' => count((new ProgramMapper())->getPrograms()),
                 'participants' => array_sum((new EnrollmentMapper())->getCountsPerProgram()),
+                'orders' => (new OrderMapper())->getCountsPerStatus()[OrderModel::STATUS_OPEN],
                 'milestones' => count((new MilestoneMapper())->getMilestones()),
                 'categories' => count((new CategoryMapper())->getCategories()),
                 'musclegroups' => count((new MuscleGroupMapper())->getMuscleGroups()),

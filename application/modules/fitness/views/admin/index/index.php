@@ -9,6 +9,7 @@ $sections = [
     'workouts' => ['menuWorkouts', 'fa-solid fa-list-check'],
     'programs' => ['menuPrograms', 'fa-solid fa-calendar-week'],
     'participants' => ['menuParticipants', 'fa-solid fa-users'],
+    'orders' => ['ordersOpenCount', 'fa-solid fa-receipt'],
     'milestones' => ['menuMilestones', 'fa-solid fa-medal'],
     'categories' => ['menuCategories', 'fa-solid fa-tags'],
     'musclegroups' => ['menuMuscleGroups', 'fa-solid fa-hand-fist'],
@@ -20,7 +21,7 @@ $sections = [
 <div class="row mb-3">
     <?php foreach ($sections as $controller => [$nameKey, $icon]) : ?>
         <div class="col-6 col-md-4 col-xl-3 mb-3">
-            <a class="card text-decoration-none h-100" href="<?=$this->getUrl(['controller' => $controller, 'action' => 'index']) ?>">
+            <a class="card text-decoration-none h-100" href="<?=$this->getUrl(array_merge(['controller' => $controller, 'action' => 'index'], $controller === 'orders' ? ['status' => 'open'] : [])) ?>">
                 <div class="card-body">
                     <div class="fs-2 fw-bold"><?=$counts[$controller] ?></div>
                     <div class="text-muted"><i class="<?=$icon ?>"></i> <?=$this->getTrans($nameKey) ?></div>

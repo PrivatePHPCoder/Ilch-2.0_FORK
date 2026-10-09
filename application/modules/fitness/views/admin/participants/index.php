@@ -13,11 +13,11 @@ $pagination = $this->get('pagination');
 $programId = (int)$this->get('programId');
 $status = (int)$this->get('status');
 
-$statusLabels = [
-    Enrollment::STATUS_ACTIVE => ['participationActive', 'bg-success'],
-    Enrollment::STATUS_PAUSED => ['participationPaused', 'bg-warning text-dark'],
-    Enrollment::STATUS_COMPLETED => ['participationCompleted', 'bg-info text-dark'],
-    Enrollment::STATUS_REVOKED => ['participationRevoked', 'bg-secondary'],
+$badgeClasses = [
+    Enrollment::STATUS_ACTIVE => 'bg-success',
+    Enrollment::STATUS_PAUSED => 'bg-warning text-dark',
+    Enrollment::STATUS_COMPLETED => 'bg-info text-dark',
+    Enrollment::STATUS_REVOKED => 'bg-secondary',
 ];
 $filterUrl = array_filter(['action' => 'index', 'program' => $programId, 'status' => $status]);
 $formatDate = static fn (?string $date): string => $date ? (new \Ilch\Date($date))->format('d.m.Y H:i', true) : '–';
@@ -39,7 +39,7 @@ $formatDate = static fn (?string $date): string => $date ? (new \Ilch\Date($date
         <label for="filterStatus" class="form-label"><?=$this->getTrans('status') ?></label>
         <select class="form-select" id="filterStatus" data-param="status">
             <option value="0"><?=$this->getTrans('allStates') ?></option>
-            <?php foreach ($statusLabels as $statusValue => [$labelKey]) : ?>
+            <?php foreach (Enrollment::ADMIN_STATUSES as $statusValue => $labelKey) : ?>
                 <option value="<?=$statusValue ?>"<?=$status === $statusValue ? ' selected' : '' ?>><?=$this->getTrans($labelKey) ?></option>
             <?php endforeach; ?>
         </select>
@@ -69,7 +69,8 @@ $formatDate = static fn (?string $date): string => $date ? (new \Ilch\Date($date
                     <?php
                     $enrollment = $participant['enrollment'];
                     $progress = $participant['progress'];
-                    [$labelKey, $badgeClass] = $statusLabels[$enrollment->getStatus()];
+                    $labelKey = Enrollment::ADMIN_STATUSES[$enrollment->getStatus()];
+                    $badgeClass = $badgeClasses[$enrollment->getStatus()];
                     $changes = [];
                     if ($enrollment->getStatus() === Enrollment::STATUS_ACTIVE) {
                         $changes['pause'] = ['participationPause', 'fa-solid fa-pause'];

@@ -14,6 +14,8 @@ $enrollment = $this->get('enrollment');
 /** @var \Modules\Fitness\Models\Progress|null $progress */
 $progress = $this->get('progress');
 $canViewContent = (bool)$this->get('canViewContent');
+/** @var \Modules\Fitness\Models\Order|null $openOrder */
+$openOrder = $this->get('openOrder');
 $image = Media::imageUrl($program->getImage(), BASE_URL);
 $price = $program->isPaid() ? $this->getFormattedCurrency((float)$program->getPrice(), $program->getCurrency()) : $this->getTrans('accessFree');
 ?>
@@ -41,8 +43,8 @@ $price = $program->isPaid() ? $this->getFormattedCurrency((float)$program->getPr
     <?php endif; ?>
 </section>
 
-<div class="row g-4">
-    <div class="col-lg-8">
+<div class="fx-split">
+    <div class="fx-split__main">
         <?php if ($program->getDescription() !== '') : ?>
             <section class="fx-card fx-card--padded fx-prose">
                 <h2 class="fx-section-title"><?=$this->getTrans('aboutProgram') ?></h2>
@@ -99,7 +101,7 @@ $price = $program->isPaid() ? $this->getFormattedCurrency((float)$program->getPr
         </section>
     </div>
 
-    <div class="col-lg-4">
+    <div class="fx-split__side">
         <aside class="fx-card fx-card--padded fx-cta">
             <?php if ($enrollment && $progress) : ?>
                 <div class="fx-eyebrow"><?=$this->getTrans($enrollment->getStatusKey()) ?></div>
@@ -124,10 +126,22 @@ $price = $program->isPaid() ? $this->getFormattedCurrency((float)$program->getPr
                 <div class="fx-cta__price"><?=$price ?></div>
                 <?php if ($program->isPaid()) : ?>
                     <p class="fx-cta__note"><?=$this->getTrans('paidProgramNote') ?></p>
-                    <button type="button" class="btn fx-btn fx-btn--primary w-100" disabled>
-                        <i class="fa-solid fa-cart-shopping"></i> <?=$this->getTrans('buyProgram') ?>
-                    </button>
-                    <p class="fx-cta__note"><?=$this->getTrans('paidComingSoon') ?></p>
+                    <?php if ($openOrder) : ?>
+                        <a class="btn fx-btn fx-btn--primary w-100" href="<?=$this->getUrl(['controller' => 'orders', 'action' => 'show', 'id' => $openOrder->getId()]) ?>">
+                            <i class="fa-solid fa-receipt"></i> <?=$this->getTrans('continuePayment') ?>
+                        </a>
+                        <p class="fx-cta__note"><?=$this->getTrans('orderPendingNote', $this->escape($openOrder->getReferenceCode())) ?></p>
+                    <?php elseif ($this->get('canBuy') && $this->get('paymentAvailable')) : ?>
+                        <form method="POST" action="<?=$this->getUrl(['controller' => 'orders', 'action' => 'create', 'program' => $program->getId()]) ?>">
+                            <?=$this->getTokenField() ?>
+                            <button type="submit" class="btn fx-btn fx-btn--primary w-100">
+                                <i class="fa-solid fa-cart-shopping"></i> <?=$this->getTrans('buyProgram') ?>
+                            </button>
+                        </form>
+                        <p class="fx-cta__note"><?=$this->getTrans('buyNote') ?></p>
+                    <?php elseif ($this->get('canBuy')) : ?>
+                        <p class="fx-cta__note"><?=$this->getTrans('buyNotAvailable') ?></p>
+                    <?php endif; ?>
                 <?php elseif ($this->get('canJoin')) : ?>
                     <form method="POST" action="<?=$this->getUrl(['action' => 'join', 'id' => $program->getId()]) ?>">
                         <?=$this->getTokenField() ?>

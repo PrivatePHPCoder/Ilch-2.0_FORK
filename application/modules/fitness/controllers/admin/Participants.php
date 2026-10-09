@@ -13,6 +13,7 @@ use Modules\Fitness\Mappers\Program as ProgramMapper;
 use Modules\Fitness\Mappers\ProgramStructure as ProgramStructureMapper;
 use Modules\Fitness\Mappers\SessionLog as SessionLogMapper;
 use Modules\Fitness\Models\Enrollment as EnrollmentModel;
+use Modules\Fitness\Service\Enrollments;
 use Modules\Fitness\Service\Progress;
 use Modules\User\Mappers\Notifications as NotificationsMapper;
 use Modules\User\Models\Notification as NotificationModel;
@@ -144,16 +145,7 @@ class Participants extends Base
             case 'revoke':
                 return $enrollment->getStatus() !== EnrollmentModel::STATUS_REVOKED ? EnrollmentModel::STATUS_REVOKED : null;
             case 'reactivate':
-                if ($enrollment->grantsAccess()) {
-                    return null;
-                }
-
-                $progress = Progress::calculate(
-                    (new ProgramStructureMapper())->getPhasesOfProgram($enrollment->getProgramId()),
-                    array_keys((new SessionLogMapper())->getDoneSessions($enrollment->getId()))
-                );
-
-                return $progress->isComplete() ? EnrollmentModel::STATUS_COMPLETED : EnrollmentModel::STATUS_ACTIVE;
+                return $enrollment->grantsAccess() ? null : (new Enrollments())->getReactivationStatus($enrollment);
             default:
                 return null;
         }

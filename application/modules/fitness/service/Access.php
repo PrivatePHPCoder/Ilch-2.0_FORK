@@ -89,4 +89,20 @@ class Access
             && !$program->isPaid()
             && $program->isVisibleForGroups($groupIds);
     }
+
+    /**
+     * Whether the user may order a paid program. Access comes only after the payment is confirmed.
+     *
+     * @param User|null $user
+     * @param Program $program
+     * @param int[] $groupIds groups of the user
+     * @return bool
+     */
+    public function canBuy(?User $user, Program $program, array $groupIds): bool
+    {
+        return $user !== null
+            && $program->isPublished()
+            && $program->isPaid()
+            && $program->isVisibleForGroups($groupIds);
+    }
 }

@@ -38,8 +38,22 @@ class Base extends Frontend
         $this->useFitnessLayout();
 
         $this->getLayout()->header()
-            ->css('static/css/fitness.css')
-            ->js('static/js/fitness.js');
+            ->css(self::withVersion('static/css/fitness.css'))
+            ->js(self::withVersion('static/js/fitness.js'));
+    }
+
+    /**
+     * Adds the time of the last change to the path of a static file. Browsers then load the file
+     * again after an update instead of using an old copy from their cache.
+     *
+     * @param string $path path inside the module
+     * @return string
+     */
+    private static function withVersion(string $path): string
+    {
+        $file = APPLICATION_PATH . '/modules/fitness/' . $path;
+
+        return is_file($file) ? $path . '?v=' . filemtime($file) : $path;
     }
 
     /**

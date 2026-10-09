@@ -3,6 +3,10 @@
 /** @var \Ilch\Layout\Frontend $this */
 
 $controller = $this->getRequest()->getControllerName();
+// Orders belong to the own training area in the navigation.
+if ($controller === 'orders') {
+    $controller = 'training';
+}
 $navigation = [
     'index' => ['navDashboard', 'fa-solid fa-gauge'],
     'programs' => ['menuPrograms', 'fa-solid fa-calendar-week'],

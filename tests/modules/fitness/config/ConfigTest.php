@@ -10,6 +10,7 @@ namespace Modules\Fitness\Config;
 use Ilch\Config\Database as DatabaseConfig;
 use Modules\Admin\Config\Config as AdminConfig;
 use Modules\Fitness\Mappers\Milestone as MilestoneMapper;
+use Modules\Fitness\Service\OrderMails;
 use Modules\User\Config\Config as UserConfig;
 use PHPUnit\Ilch\DatabaseTestCase;
 
@@ -72,6 +73,38 @@ class ConfigTest extends DatabaseTestCase
     }
 
     /**
+     * Tests that install() adds the e-mail templates in both languages.
+     */
+    public function testInstallCreatesMailTemplates()
+    {
+        $this->out->install();
+
+        self::assertSame(count(OrderMails::TEMPLATES) * 2, $this->countRows('emails', ['moduleKey' => 'fitness']));
+    }
+
+    /**
+     * Tests that the update from 1.1.0 adds the payment settings and e-mail templates, but keeps
+     * values and texts that already exist.
+     */
+    public function testUpdateFrom110KeepsExistingSettingsAndTemplates()
+    {
+        $databaseConfig = new DatabaseConfig($this->db);
+        $databaseConfig->set('fitness_ownLayout', '0');
+        $this->db->insert('emails')
+            ->values(['moduleKey' => 'fitness', 'type' => OrderMails::TYPE_PAID, 'desc' => 'Eigener Betreff', 'text' => 'Eigener Text', 'locale' => 'de_DE'])
+            ->execute();
+
+        $this->out->getUpdate('1.1.0');
+        $this->out->getUpdate('1.1.0');
+
+        $databaseConfig = new DatabaseConfig($this->db);
+        self::assertSame('0', $databaseConfig->get('fitness_ownLayout', true));
+        self::assertSame('0', $databaseConfig->get('fitness_payTransfer', true));
+        self::assertSame(count(OrderMails::TEMPLATES) * 2, $this->countRows('emails', ['moduleKey' => 'fitness']));
+        self::assertSame(1, $this->countRows('emails', ['moduleKey' => 'fitness', 'type' => OrderMails::TYPE_PAID, 'locale' => 'de_DE', 'text' => 'Eigener Text']));
+    }
+
+    /**
      * Tests that uninstall() removes all tables and settings of the module.
      */
     public function testUninstallRemovesTablesAndSettings()
@@ -84,7 +117,10 @@ class ConfigTest extends DatabaseTestCase
         }
 
         $databaseConfig = new DatabaseConfig($this->db);
-        self::assertNull($databaseConfig->get('fitness_ownLayout', true));
+        foreach (array_keys(Config::SETTINGS) as $key) {
+            self::assertNull($databaseConfig->get($key, true), 'Setting "' . $key . '" still exists.');
+        }
+        self::assertSame(0, $this->countRows('emails', ['moduleKey' => 'fitness']));
     }
 
     /**

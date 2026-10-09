@@ -10,6 +10,7 @@ namespace Modules\Fitness\Controllers;
 use Modules\Fitness\Mappers\Enrollment as EnrollmentMapper;
 use Modules\Fitness\Mappers\Exercise as ExerciseMapper;
 use Modules\Fitness\Mappers\MuscleGroup as MuscleGroupMapper;
+use Modules\Fitness\Mappers\Order as OrderMapper;
 use Modules\Fitness\Mappers\Program as ProgramMapper;
 use Modules\Fitness\Mappers\ProgramStructure as ProgramStructureMapper;
 use Modules\Fitness\Mappers\SessionLog as SessionLogMapper;
@@ -44,7 +45,11 @@ class Training extends Base
             ->add($this->getTranslator()->trans('menuFitness'), ['controller' => 'index', 'action' => 'index'])
             ->add($this->getTranslator()->trans('myTraining'), ['action' => 'index']);
 
-        $this->getView()->set('trainings', $this->getTrainingsOfUser($this->getUser()->getId()));
+        $orders = (new OrderMapper())->getOrdersOfUser($this->getUser()->getId());
+
+        $this->getView()->set('trainings', $this->getTrainingsOfUser($this->getUser()->getId()))
+            ->set('openOrders', array_values(array_filter($orders, static fn ($order) => $order->isOpen())))
+            ->set('hasOrders', (bool)$orders);
     }
 
     /**

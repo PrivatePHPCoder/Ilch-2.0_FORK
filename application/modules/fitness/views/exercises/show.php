@@ -35,8 +35,8 @@ $video = Media::videoEmbed($exercise->getVideoUrl());
     </div>
 </header>
 
-<div class="row g-4">
-    <div class="col-lg-6">
+<div class="fx-split">
+    <div class="fx-split__half">
         <?php if ($video) : ?>
             <div class="fx-video" data-src="<?=$this->escape($video['url']) ?>" data-title="<?=$this->escape($exercise->getTitle()) ?>">
                 <div class="fx-video__consent">
@@ -54,7 +54,7 @@ $video = Media::videoEmbed($exercise->getVideoUrl());
             <div class="fx-exercise-image fx-card__placeholder"><i class="fa-solid fa-person-running"></i></div>
         <?php endif; ?>
     </div>
-    <div class="col-lg-6">
+    <div class="fx-split__half">
         <?php if ($exercise->getDescription() !== '') : ?>
             <section class="fx-prose mb-4">
                 <?=$this->purify($exercise->getDescription()) ?>

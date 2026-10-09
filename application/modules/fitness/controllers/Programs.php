@@ -8,9 +8,11 @@
 namespace Modules\Fitness\Controllers;
 
 use Modules\Fitness\Mappers\Enrollment as EnrollmentMapper;
+use Modules\Fitness\Mappers\Order as OrderMapper;
 use Modules\Fitness\Mappers\Program as ProgramMapper;
 use Modules\Fitness\Mappers\ProgramStructure as ProgramStructureMapper;
 use Modules\Fitness\Mappers\SessionLog as SessionLogMapper;
+use Modules\Fitness\Models\PaymentOptions;
 use Modules\Fitness\Service\Access;
 use Modules\Fitness\Service\Progress;
 
@@ -71,7 +73,10 @@ class Programs extends Base
             ->set('enrollment', $enrollment)
             ->set('progress', $progress)
             ->set('canViewContent', $canViewContent)
-            ->set('canJoin', !$enrollment && $access->canJoinForFree($user, $program, $this->getVisitorGroupIds()));
+            ->set('canJoin', !$enrollment && $access->canJoinForFree($user, $program, $this->getVisitorGroupIds()))
+            ->set('canBuy', !$enrollment && $access->canBuy($user, $program, $this->getVisitorGroupIds()))
+            ->set('openOrder', $user && $program->isPaid() ? (new OrderMapper())->getOpenOrder($program->getId(), $user->getId()) : null)
+            ->set('paymentAvailable', PaymentOptions::fromConfig($this->getConfig())->isAvailable());
     }
 
     /**
@@ -106,7 +111,7 @@ class Programs extends Base
 
         if ($program->isPaid()) {
             $this->redirect()
-                ->withMessage('paidComingSoon', 'info')
+                ->withMessage('programIsPaid', 'info')
                 ->to(['action' => 'show', 'id' => $program->getId()]);
         }
 

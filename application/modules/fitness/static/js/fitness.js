@@ -23,4 +23,29 @@ document.addEventListener('DOMContentLoaded', function () {
             box.classList.add('fx-video--loaded');
         });
     });
+
+    // Copies a text, for example the payment reference.
+    document.querySelectorAll('[data-fx-copy]').forEach(function (button) {
+        button.addEventListener('click', function () {
+            if (!navigator.clipboard) {
+                return;
+            }
+
+            navigator.clipboard.writeText(button.dataset.fxCopy).then(function () {
+                const label = button.querySelector('span');
+                if (label && button.dataset.fxCopied) {
+                    label.textContent = button.dataset.fxCopied;
+                }
+            });
+        });
+    });
+
+    // Asks before buttons with a lasting effect, for example cancelling an order.
+    document.querySelectorAll('[data-fx-confirm]').forEach(function (button) {
+        button.addEventListener('click', function (event) {
+            if (!window.confirm(button.dataset.fxConfirm)) {
+                event.preventDefault();
+            }
+        });
+    });
 });

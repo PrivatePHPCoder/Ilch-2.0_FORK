@@ -1039,3 +1039,152 @@ a.fx-chip:hover {
         animation: none;
     }
 }
+
+/* Orders and payment */
+
+.fx-order-status {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+    background: var(--fx-line);
+    color: var(--fx-text);
+    font-size: 0.75rem;
+    font-weight: 700;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+.fx-order-status--0 {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.fx-order-status--1 {
+    background: var(--fx-accent-soft);
+    color: var(--fx-accent-dark);
+}
+
+.fx-pay__summary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem 3rem;
+    margin: 1rem 0 1.5rem;
+    padding: 1.25rem;
+    border-radius: 0.75rem;
+    background: var(--fx-bg);
+}
+
+.fx-pay__summary span {
+    display: block;
+    font-size: 0.85rem;
+}
+
+.fx-pay__amount {
+    font-size: 1.75rem;
+    font-weight: 800;
+}
+
+.fx-pay__reference {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.25rem;
+}
+
+.fx-pay__reference code {
+    color: var(--fx-text);
+    font-size: 1.25rem;
+    letter-spacing: 0.05em;
+}
+
+.btn.fx-copy {
+    border: 1px solid var(--fx-line);
+    background: var(--fx-surface);
+    color: var(--fx-text);
+}
+
+.fx-pay__method {
+    padding: 1.25rem 0;
+    border-top: 1px solid var(--fx-line);
+}
+
+.fx-pay__method h3 {
+    font-size: 1.05rem;
+    font-weight: 800;
+}
+
+.fx-pay__bank {
+    padding: 0.75rem 1rem;
+    border-left: 3px solid var(--fx-accent);
+    background: var(--fx-bg);
+    font-family: var(--bs-font-monospace, monospace);
+}
+
+.fx-next-steps {
+    padding-left: 1.25rem;
+}
+
+.fx-next-steps li {
+    margin-bottom: 0.5rem;
+}
+
+.fx-pending {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    border-left: 4px solid var(--fx-paid);
+}
+
+.fx-pending > .fa-hourglass-half {
+    color: var(--fx-paid);
+    font-size: 1.5rem;
+}
+
+.fx-pending > div {
+    flex: 1 1 16rem;
+}
+
+.fx-pending strong,
+.fx-pending span {
+    display: block;
+}
+
+.fx-table th {
+    color: var(--fx-muted);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+}
+
+.fx-table td,
+.fx-table th {
+    padding: 0.85rem 1.25rem;
+}
+
+/*
+ * Two columns that adapt to the space of the content area, not to the window. Inside the
+ * regular website layout the content area can be much narrower than the window.
+ */
+
+.fx-split {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+}
+
+.fx-split__main {
+    flex: 2 1 26rem;
+    min-width: 0;
+}
+
+.fx-split__side {
+    flex: 1 1 16rem;
+    min-width: 0;
+}
+
+.fx-split__half {
+    flex: 1 1 20rem;
+    min-width: 0;
+}

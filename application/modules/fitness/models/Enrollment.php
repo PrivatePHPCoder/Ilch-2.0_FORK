@@ -31,6 +31,18 @@ class Enrollment extends Model
         self::STATUS_REVOKED => 'enrollmentRevoked',
     ];
 
+    /**
+     * Translation keys of the states in the admin area.
+     *
+     * @var array<int, string>
+     */
+    public const ADMIN_STATUSES = [
+        self::STATUS_ACTIVE => 'participationActive',
+        self::STATUS_PAUSED => 'participationPaused',
+        self::STATUS_COMPLETED => 'participationCompleted',
+        self::STATUS_REVOKED => 'participationRevoked',
+    ];
+
     public const SOURCE_FREE = 0;
     public const SOURCE_ORDER = 1;
     public const SOURCE_MANUAL = 2;
