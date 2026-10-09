@@ -13,7 +13,6 @@ use Modules\Fitness\Mappers\Program as ProgramMapper;
 use Modules\Fitness\Mappers\ProgramStructure as ProgramStructureMapper;
 use Modules\Fitness\Mappers\SessionLog as SessionLogMapper;
 use Modules\Fitness\Models\PaymentOptions;
-use Modules\Fitness\Service\Access;
 use Modules\Fitness\Service\Progress;
 
 class Programs extends Base
@@ -60,8 +59,10 @@ class Programs extends Base
             ->add($program->getTitle(), ['action' => 'show', 'id' => $program->getId()]);
 
         $phases = (new ProgramStructureMapper())->getPhasesOfProgram($program->getId());
-        $access = new Access();
+        $access = $this->getAccess();
         $canViewContent = $access->canViewProgramContent($user, $program);
+        // Content of a paid program that is only visible because of the admin preview.
+        $isAdminPreview = $program->isPaid() && $canViewContent && !$access->getAccessEnrollment($user, $program);
         $progress = null;
         if ($enrollment) {
             $progress = Progress::calculate($phases, array_keys((new SessionLogMapper())->getDoneSessions($enrollment->getId())));
@@ -73,6 +74,8 @@ class Programs extends Base
             ->set('enrollment', $enrollment)
             ->set('progress', $progress)
             ->set('canViewContent', $canViewContent)
+            ->set('isAdminPreview', $isAdminPreview)
+            ->set('isLocked', $program->isPaid() && !$canViewContent)
             ->set('canJoin', !$enrollment && $access->canJoinForFree($user, $program, $this->getVisitorGroupIds()))
             ->set('canBuy', !$enrollment && $access->canBuy($user, $program, $this->getVisitorGroupIds()))
             ->set('openOrder', $user && $program->isPaid() ? (new OrderMapper())->getOpenOrder($program->getId(), $user->getId()) : null)
@@ -100,7 +103,7 @@ class Programs extends Base
                 ->to(['action' => 'index']);
         }
 
-        $access = new Access();
+        $access = $this->getAccess();
         $enrollmentMapper = new EnrollmentMapper();
 
         if ($enrollmentMapper->getEnrollment($program->getId(), $this->getUser()->getId())) {

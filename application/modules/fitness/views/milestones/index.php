@@ -11,6 +11,7 @@ $achievements = $this->get('achievements');
 /** @var array{sessions: int, phases: int, programs: int} $totals */
 $totals = $this->get('totals');
 ?>
+<?php $this->load('partials/visitorBar.php', ['active' => $this->get('visitorView')]); ?>
 <header class="fx-page-head">
     <h1 class="fx-page-title"><?=$this->getTrans('myMilestones') ?></h1>
     <p class="fx-page-lead"><?=$this->getTrans('myMilestonesLead') ?></p>

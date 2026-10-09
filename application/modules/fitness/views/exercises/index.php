@@ -23,6 +23,7 @@ $filterUrl = function (int $category, int $muscle): string {
     ));
 };
 ?>
+<?php $this->load('partials/visitorBar.php', ['active' => $this->get('visitorView')]); ?>
 <header class="fx-page-head">
     <h1 class="fx-page-title"><?=$this->getTrans('exerciseLibrary') ?></h1>
     <p class="fx-page-lead"><?=$this->getTrans('exerciseLibraryLead') ?></p>

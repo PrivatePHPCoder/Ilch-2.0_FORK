@@ -158,6 +158,20 @@ class EnrollmentTest extends DatabaseTestCase
         self::assertFalse(Access::canManage(null));
     }
 
+    public function testAdminsInVisitorViewNeedAnEnrollmentLikeEveryoneElse()
+    {
+        $program = (new Program())->getProgramById($this->programId);
+        $admin = $this->user(6, 1);
+        $visitorView = new Access(null, false);
+
+        self::assertFalse($visitorView->canPreview($admin));
+        self::assertFalse($visitorView->canViewProgramContent($admin, $program), 'Without the preview the admin sees what a visitor sees.');
+        self::assertTrue((new Access())->canPreview($admin));
+
+        $this->out->enroll($this->programId, 6);
+        self::assertTrue($visitorView->canViewProgramContent($admin, $program), 'With an own enrollment the content is open.');
+    }
+
     public function testJoiningForFreeNeedsAPublishedFreeVisibleProgram()
     {
         $access = new Access();

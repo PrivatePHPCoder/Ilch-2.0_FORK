@@ -33,9 +33,15 @@ class Base extends Frontend
      */
     private const SESSION_REACHED_MILESTONES = 'fitness_reachedMilestones';
 
+    /**
+     * Session key for the visitor view of managers.
+     */
+    private const SESSION_VISITOR_VIEW = 'fitness_visitorView';
+
     public function init()
     {
         $this->useFitnessLayout();
+        $this->getView()->set('visitorView', $this->isVisitorView());
 
         $this->getLayout()->header()
             ->css(self::withVersion('static/css/fitness.css'))
@@ -86,14 +92,47 @@ class Base extends Frontend
     }
 
     /**
-     * Returns whether the visitor may manage the fitness module. Such visitors may preview
-     * unpublished programs and inactive exercises.
+     * Returns whether the visitor may manage the fitness module and sees the admin preview. Such
+     * visitors may see unpublished programs, inactive exercises and the content of all programs.
+     * Managers who switched to the visitor view get false.
      *
      * @return bool
      */
     protected function canManageFitness(): bool
     {
-        return Access::canManage($this->getUser());
+        return Access::canManage($this->getUser()) && !$this->isVisitorView();
+    }
+
+    /**
+     * Whether a manager has switched off the admin preview to see the area like a visitor.
+     *
+     * @return bool
+     */
+    protected function isVisitorView(): bool
+    {
+        return !empty($_SESSION[self::SESSION_VISITOR_VIEW]) && Access::canManage($this->getUser());
+    }
+
+    /**
+     * @param bool $visitorView
+     */
+    protected function setVisitorView(bool $visitorView): void
+    {
+        if ($visitorView) {
+            $_SESSION[self::SESSION_VISITOR_VIEW] = true;
+        } else {
+            unset($_SESSION[self::SESSION_VISITOR_VIEW]);
+        }
+    }
+
+    /**
+     * Returns the access check. It respects the visitor view of managers.
+     *
+     * @return Access
+     */
+    protected function getAccess(): Access
+    {
+        return new Access(null, !$this->isVisitorView());
     }
 
     /**

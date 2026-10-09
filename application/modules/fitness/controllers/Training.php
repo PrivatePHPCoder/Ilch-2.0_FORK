@@ -18,7 +18,6 @@ use Modules\Fitness\Mappers\Workout as WorkoutMapper;
 use Modules\Fitness\Models\Enrollment as EnrollmentModel;
 use Modules\Fitness\Models\Program as ProgramModel;
 use Modules\Fitness\Models\ProgramSession as ProgramSessionModel;
-use Modules\Fitness\Service\Access;
 use Modules\Fitness\Service\Milestones;
 use Modules\Fitness\Service\Progress;
 
@@ -187,10 +186,10 @@ class Training extends Base
                 ->to(['action' => 'index']);
         }
 
-        $access = new Access();
+        $access = $this->getAccess();
         $enrollment = $access->getAccessEnrollment($this->getUser(), $program);
 
-        if (!$enrollment && !Access::canManage($this->getUser())) {
+        if (!$enrollment && !$this->canManageFitness()) {
             $this->redirect()
                 ->withMessage('noAccessToProgram', 'warning')
                 ->to(['controller' => 'programs', 'action' => 'show', 'id' => $program->getId()]);

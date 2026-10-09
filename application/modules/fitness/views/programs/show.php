@@ -14,17 +14,33 @@ $enrollment = $this->get('enrollment');
 /** @var \Modules\Fitness\Models\Progress|null $progress */
 $progress = $this->get('progress');
 $canViewContent = (bool)$this->get('canViewContent');
+// Paid program the visitor has not bought: sessions are shown locked.
+$isLocked = (bool)$this->get('isLocked');
 /** @var \Modules\Fitness\Models\Order|null $openOrder */
 $openOrder = $this->get('openOrder');
 $image = Media::imageUrl($program->getImage(), BASE_URL);
 $price = $program->isPaid() ? $this->getFormattedCurrency((float)$program->getPrice(), $program->getCurrency()) : $this->getTrans('accessFree');
 ?>
+<?php $this->load('partials/visitorBar.php', ['active' => $this->get('visitorView')]); ?>
 <?php if ($this->get('isPreview')) : ?>
     <div class="alert alert-warning"><i class="fa-solid fa-eye"></i> <?=$this->getTrans('previewProgram') ?></div>
+<?php endif; ?>
+<?php if ($this->get('isAdminPreview')) : ?>
+    <div class="fx-admin-preview" role="note">
+        <span>
+            <i class="fa-solid fa-user-shield"></i>
+            <strong><?=$this->getTrans('adminPreviewTitle') ?></strong>
+            <?=$this->getTrans('adminPreviewText') ?>
+        </span>
+        <?php $this->load('partials/visitorSwitch.php', ['mode' => 'visitor']); ?>
+    </div>
 <?php endif; ?>
 
 <section class="fx-program-hero">
     <div class="fx-program-hero__content">
+        <?php if ($program->isPaid()) : ?>
+            <span class="fx-premium-tag"><i class="fa-solid fa-crown"></i> <?=$this->getTrans('premium') ?></span>
+        <?php endif; ?>
         <?php if ($program->getGoal() !== '') : ?>
             <span class="fx-eyebrow fx-eyebrow--light"><?=$this->escape($program->getGoal()) ?></span>
         <?php endif; ?>
@@ -74,9 +90,13 @@ $price = $program->isPaid() ? $this->getFormattedCurrency((float)$program->getPr
                             <ul class="fx-plan__sessions">
                                 <?php foreach ($sessions as $session) : ?>
                                     <?php $isDone = $progress && $progress->isSessionDone($session->getId()); ?>
-                                    <li class="<?=$isDone ? 'is-done' : '' ?>">
+                                    <li class="<?=$isDone ? 'is-done' : ($isLocked ? 'is-locked' : '') ?>">
                                         <span class="fx-plan__session-title">
-                                            <i class="fa-solid <?=$isDone ? 'fa-circle-check' : 'fa-dumbbell' ?>"></i>
+                                            <?php if ($isLocked) : ?>
+                                                <i class="fa-solid fa-lock" title="<?=$this->getTrans('sessionLocked') ?>"></i>
+                                            <?php else : ?>
+                                                <i class="fa-solid <?=$isDone ? 'fa-circle-check' : 'fa-dumbbell' ?>"></i>
+                                            <?php endif; ?>
                                             <?php if ($canViewContent) : ?>
                                                 <a href="<?=$this->getUrl(['controller' => 'training', 'action' => 'session', 'id' => $session->getId()]) ?>"><?=$this->escape($session->getDisplayTitle()) ?></a>
                                             <?php else : ?>
@@ -95,6 +115,9 @@ $price = $program->isPaid() ? $this->getFormattedCurrency((float)$program->getPr
                         </details>
                     <?php endforeach; ?>
                 </div>
+                <?php if ($isLocked) : ?>
+                    <p class="fx-locked-note"><i class="fa-solid fa-lock"></i> <?=$this->getTrans('sessionsLockedNote') ?></p>
+                <?php endif; ?>
             <?php else : ?>
                 <p class="fx-empty"><?=$this->getTrans('programPlanEmpty') ?></p>
             <?php endif; ?>
@@ -123,6 +146,9 @@ $price = $program->isPaid() ? $this->getFormattedCurrency((float)$program->getPr
                     <p class="fx-cta__note"><?=$this->getTrans('enrollmentNoAccess') ?></p>
                 <?php endif; ?>
             <?php else : ?>
+                <?php if ($program->isPaid()) : ?>
+                    <span class="fx-premium-tag"><i class="fa-solid fa-crown"></i> <?=$this->getTrans('premium') ?></span>
+                <?php endif; ?>
                 <div class="fx-cta__price"><?=$price ?></div>
                 <?php if ($program->isPaid()) : ?>
                     <p class="fx-cta__note"><?=$this->getTrans('paidProgramNote') ?></p>

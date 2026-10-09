@@ -24,9 +24,17 @@ class Access
      */
     private EnrollmentMapper $enrollmentMapper;
 
-    public function __construct(?EnrollmentMapper $enrollmentMapper = null)
+    /**
+     * Whether managers may preview all content. Off while an admin views the area as a visitor.
+     *
+     * @var bool
+     */
+    private bool $previewEnabled;
+
+    public function __construct(?EnrollmentMapper $enrollmentMapper = null, bool $previewEnabled = true)
     {
         $this->enrollmentMapper = $enrollmentMapper ?? new EnrollmentMapper();
+        $this->previewEnabled = $previewEnabled;
     }
 
     /**
@@ -39,6 +47,17 @@ class Access
     public static function canManage(?User $user): bool
     {
         return $user !== null && ($user->isAdmin() || $user->hasAccess('module_fitness'));
+    }
+
+    /**
+     * Whether the user sees content because of manager rights, without taking part.
+     *
+     * @param User|null $user
+     * @return bool
+     */
+    public function canPreview(?User $user): bool
+    {
+        return $this->previewEnabled && self::canManage($user);
     }
 
     /**
@@ -71,7 +90,7 @@ class Access
      */
     public function canViewProgramContent(?User $user, Program $program): bool
     {
-        return self::canManage($user) || $this->getAccessEnrollment($user, $program) !== null;
+        return $this->canPreview($user) || $this->getAccessEnrollment($user, $program) !== null;
     }
 
     /**

@@ -372,8 +372,8 @@
     color: #062e16;
 }
 
-.fx-badge--paid {
-    background: var(--fx-paid);
+.fx-badge--premium {
+    background: linear-gradient(135deg, #fde68a, var(--fx-paid));
     color: #3b2400;
 }
 
@@ -1187,4 +1187,74 @@ a.fx-chip:hover {
 .fx-split__half {
     flex: 1 1 20rem;
     min-width: 0;
+}
+
+/* Premium programs, locked sessions and admin preview */
+
+.fx-premium-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin: 0 0.5rem 0.75rem 0;
+    padding: 0.25rem 0.75rem;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #fde68a, var(--fx-paid));
+    color: #3b2400;
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.fx-plan__sessions li.is-locked,
+.fx-plan__sessions li.is-locked .fx-plan__day {
+    color: var(--fx-muted);
+}
+
+.fx-plan__sessions li.is-locked .fa-lock {
+    color: var(--fx-paid);
+}
+
+.fx-locked-note {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 1rem 0 0;
+    padding: 1rem 1.25rem;
+    border-radius: 0.75rem;
+    background: #fef3c7;
+    color: #92400e;
+    font-weight: 600;
+}
+
+.fx-admin-preview,
+.fx-visitor-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+    padding: 0.85rem 1.25rem;
+    border-radius: 0.75rem;
+}
+
+.fx-admin-preview {
+    border: 1px solid #bfdbfe;
+    background: #eff6ff;
+    color: #1e3a8a;
+}
+
+.fx-visitor-bar {
+    background: var(--fx-dark-2);
+    color: #ffffff;
+}
+
+.fx-admin-preview > span,
+.fx-visitor-bar > span {
+    flex: 1 1 18rem;
+}
+
+.fx-visitor-switch {
+    margin: 0;
 }

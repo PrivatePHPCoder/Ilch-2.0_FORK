@@ -5,6 +5,7 @@
 /** @var \Modules\Fitness\Models\Program[] $programs */
 $programs = $this->get('programs');
 ?>
+<?php $this->load('partials/visitorBar.php', ['active' => $this->get('visitorView')]); ?>
 <header class="fx-page-head">
     <h1 class="fx-page-title"><?=$this->getTrans('menuPrograms') ?></h1>
     <p class="fx-page-lead"><?=$this->getTrans('programsLead') ?></p>

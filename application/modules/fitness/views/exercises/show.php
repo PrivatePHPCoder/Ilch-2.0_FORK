@@ -11,6 +11,7 @@ $muscleGroups = $this->get('muscleGroups');
 $image = Media::imageUrl($exercise->getImage(), BASE_URL);
 $video = Media::videoEmbed($exercise->getVideoUrl());
 ?>
+<?php $this->load('partials/visitorBar.php', ['active' => $this->get('visitorView')]); ?>
 <?php if ($this->get('isPreview')) : ?>
     <div class="alert alert-warning"><i class="fa-solid fa-eye"></i> <?=$this->getTrans('previewExercise') ?></div>
 <?php endif; ?>

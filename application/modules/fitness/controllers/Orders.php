@@ -12,7 +12,6 @@ use Modules\Fitness\Mappers\Order as OrderMapper;
 use Modules\Fitness\Mappers\Program as ProgramMapper;
 use Modules\Fitness\Models\Order as OrderModel;
 use Modules\Fitness\Models\PaymentOptions;
-use Modules\Fitness\Service\Access;
 use Modules\Fitness\Service\OrderMails;
 use Modules\Fitness\Service\Orders as OrdersService;
 
@@ -73,7 +72,7 @@ class Orders extends Base
         }
 
         $program = (new ProgramMapper())->getProgramById($programId);
-        if (!$program || !(new Access())->canBuy($this->getUser(), $program, $this->getVisitorGroupIds())) {
+        if (!$program || !$this->getAccess()->canBuy($this->getUser(), $program, $this->getVisitorGroupIds())) {
             $this->redirect()
                 ->withMessage('programNotFound', 'warning')
                 ->to(['controller' => 'programs', 'action' => 'index']);

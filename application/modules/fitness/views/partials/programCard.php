@@ -16,9 +16,13 @@ $image = Media::imageUrl($program->getImage(), BASE_URL);
         <?php else : ?>
             <span class="fx-card__placeholder"><i class="fa-solid fa-dumbbell"></i></span>
         <?php endif; ?>
-        <span class="fx-badge <?=$program->isPaid() ? 'fx-badge--paid' : 'fx-badge--free' ?>">
-            <?=$program->isPaid() ? $this->getFormattedCurrency((float)$program->getPrice(), $program->getCurrency()) : $this->getTrans('accessFree') ?>
-        </span>
+        <?php if ($program->isPaid()) : ?>
+            <span class="fx-badge fx-badge--premium">
+                <i class="fa-solid fa-crown"></i> <?=$this->getTrans('premium') ?> · <?=$this->getFormattedCurrency((float)$program->getPrice(), $program->getCurrency()) ?>
+            </span>
+        <?php else : ?>
+            <span class="fx-badge fx-badge--free"><?=$this->getTrans('accessFree') ?></span>
+        <?php endif; ?>
     </a>
     <div class="fx-card__body">
         <?php if ($program->getGoal() !== '') : ?>

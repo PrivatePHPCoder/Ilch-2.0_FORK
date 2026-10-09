@@ -10,6 +10,7 @@ $order = $this->get('order');
 $payment = $this->get('payment');
 $amount = $this->getFormattedCurrency((float)$order->getAmount(), $order->getCurrency());
 ?>
+<?php $this->load('partials/visitorBar.php', ['active' => $this->get('visitorView')]); ?>
 <header class="fx-page-head">
     <div class="fx-eyebrow"><?=$this->getTrans('orderNumber', $this->escape($order->getReferenceCode())) ?></div>
     <h1 class="fx-page-title">

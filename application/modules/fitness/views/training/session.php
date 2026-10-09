@@ -42,8 +42,16 @@ $formatSeconds = function (int $seconds): string {
     return $seconds . ' ' . $this->getTrans('secondsShort');
 };
 ?>
+<?php $this->load('partials/visitorBar.php', ['active' => $this->get('visitorView')]); ?>
 <?php if (!$enrollment) : ?>
-    <div class="alert alert-warning"><i class="fa-solid fa-eye"></i> <?=$this->getTrans('previewSession') ?></div>
+    <div class="fx-admin-preview" role="note">
+        <span>
+            <i class="fa-solid fa-user-shield"></i>
+            <strong><?=$this->getTrans('adminPreviewTitle') ?></strong>
+            <?=$this->getTrans('previewSession') ?>
+        </span>
+        <?php $this->load('partials/visitorSwitch.php', ['mode' => 'visitor']); ?>
+    </div>
 <?php endif; ?>
 <?php $this->load('partials/reachedMilestones.php', ['milestones' => $this->get('reachedMilestones')]); ?>
 

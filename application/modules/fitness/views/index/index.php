@@ -11,6 +11,7 @@ $overview = $this->get('overview');
 /** @var \Modules\Fitness\Models\Milestone[] $latestMilestones */
 $latestMilestones = $this->get('latestMilestones');
 ?>
+<?php $this->load('partials/visitorBar.php', ['active' => $this->get('visitorView')]); ?>
 <section class="fx-hero">
     <div class="fx-hero__content">
         <span class="fx-eyebrow fx-eyebrow--light"><?=$this->getTrans('menuFitness') ?></span>
