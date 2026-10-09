@@ -5,10 +5,7 @@
 /** @var \Modules\Fitness\Models\Milestone[] $milestones */
 $milestones = $this->get('milestones');
 ?>
-<h1>
-    <?=$this->getTrans('menuMilestones') ?>
-    <a class="badge rounded-pill bg-secondary" href="<?=$this->getUrl(['action' => 'treat']) ?>" title="<?=$this->getTrans('add') ?>"><i class="fa-solid fa-plus"></i></a>
-</h1>
+<?php $this->load('admin/partials/listHead.php', ['title' => 'menuMilestones', 'addLabel' => 'addMilestone']); ?>
 <p><?=$this->getTrans('milestonesIntro') ?></p>
 <?php if ($milestones) : ?>
     <p class="text-muted"><?=$this->getTrans('sortInfo') ?></p>

@@ -7,10 +7,7 @@ $exercises = $this->get('exercises');
 /** @var array<int, string> $muscleGroupNames */
 $muscleGroupNames = $this->get('muscleGroupNames');
 ?>
-<h1>
-    <?=$this->getTrans('menuExercises') ?>
-    <a class="badge rounded-pill bg-secondary" href="<?=$this->getUrl(['action' => 'treat']) ?>" title="<?=$this->getTrans('add') ?>"><i class="fa-solid fa-plus"></i></a>
-</h1>
+<?php $this->load('admin/partials/listHead.php', ['title' => 'menuExercises', 'addLabel' => 'addExercise']); ?>
 <?php if ($exercises) : ?>
     <p class="text-muted"><?=$this->getTrans('sortInfo') ?></p>
     <form method="POST">

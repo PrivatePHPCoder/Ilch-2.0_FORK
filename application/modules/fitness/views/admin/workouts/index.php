@@ -5,10 +5,7 @@
 /** @var \Modules\Fitness\Models\Workout[] $workouts */
 $workouts = $this->get('workouts');
 ?>
-<h1>
-    <?=$this->getTrans('menuWorkouts') ?>
-    <a class="badge rounded-pill bg-secondary" href="<?=$this->getUrl(['action' => 'treat']) ?>" title="<?=$this->getTrans('add') ?>"><i class="fa-solid fa-plus"></i></a>
-</h1>
+<?php $this->load('admin/partials/listHead.php', ['title' => 'menuWorkouts', 'addLabel' => 'addWorkout']); ?>
 <?php if ($workouts) : ?>
     <form method="POST">
         <?=$this->getTokenField() ?>

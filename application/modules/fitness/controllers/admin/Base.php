@@ -18,51 +18,49 @@ use Ilch\Controller\Admin;
 class Base extends Admin
 {
     /**
-     * Entries of the side menu, keyed by controller name.
-     * With 'add' => true the entry gets a sub entry for the treat action.
+     * Sections of the side menu with their entries, keyed by controller name. Adding new entries
+     * happens with the button at the top of each list, so the menu has no "add" entries.
      *
-     * @var array<string, array{name: string, icon: string, add?: bool}>
+     * @var array<string, array<string, array{name: string, icon: string}>>
      */
     private const MENU = [
-        'index' => ['name' => 'menuOverview', 'icon' => 'fa-solid fa-gauge'],
-        'exercises' => ['name' => 'menuExercises', 'icon' => 'fa-solid fa-person-running', 'add' => true],
-        'workouts' => ['name' => 'menuWorkouts', 'icon' => 'fa-solid fa-list-check', 'add' => true],
-        'programs' => ['name' => 'menuPrograms', 'icon' => 'fa-solid fa-calendar-week', 'add' => true],
-        'participants' => ['name' => 'menuParticipants', 'icon' => 'fa-solid fa-users'],
-        'orders' => ['name' => 'menuOrders', 'icon' => 'fa-solid fa-receipt'],
-        'milestones' => ['name' => 'menuMilestones', 'icon' => 'fa-solid fa-medal', 'add' => true],
-        'categories' => ['name' => 'menuCategories', 'icon' => 'fa-solid fa-tags', 'add' => true],
-        'musclegroups' => ['name' => 'menuMuscleGroups', 'icon' => 'fa-solid fa-hand-fist', 'add' => true],
-        'settings' => ['name' => 'menuSettings', 'icon' => 'fa-solid fa-gears'],
+        'menuFitness' => [
+            'index' => ['name' => 'menuOverview', 'icon' => 'fa-solid fa-gauge'],
+            'settings' => ['name' => 'menuSettings', 'icon' => 'fa-solid fa-gears'],
+        ],
+        'menuSectionTraining' => [
+            'programs' => ['name' => 'menuPrograms', 'icon' => 'fa-solid fa-calendar-week'],
+            'workouts' => ['name' => 'menuWorkouts', 'icon' => 'fa-solid fa-list-check'],
+            'exercises' => ['name' => 'menuExercises', 'icon' => 'fa-solid fa-person-running'],
+        ],
+        'menuSectionParticipants' => [
+            'participants' => ['name' => 'menuParticipants', 'icon' => 'fa-solid fa-users'],
+            'orders' => ['name' => 'menuOrders', 'icon' => 'fa-solid fa-receipt'],
+            'milestones' => ['name' => 'menuMilestones', 'icon' => 'fa-solid fa-medal'],
+        ],
+        'menuSectionMasterData' => [
+            'categories' => ['name' => 'menuCategories', 'icon' => 'fa-solid fa-tags'],
+            'musclegroups' => ['name' => 'menuMuscleGroups', 'icon' => 'fa-solid fa-hand-fist'],
+        ],
     ];
 
     public function init()
     {
         $currentController = $this->getRequest()->getControllerName();
-        $isTreat = $this->getRequest()->getActionName() === 'treat';
 
-        $items = [];
-        foreach (self::MENU as $controller => $entry) {
-            $item = [
-                'name' => $entry['name'],
-                'active' => $currentController === $controller && !($isTreat && !empty($entry['add'])),
-                'icon' => $entry['icon'],
-                'url' => $this->getLayout()->getUrl(['controller' => $controller, 'action' => 'index']),
-            ];
-
-            if (!empty($entry['add'])) {
-                $item[] = [
-                    'name' => 'add',
-                    'active' => $currentController === $controller && $isTreat,
-                    'icon' => 'fa-solid fa-circle-plus',
-                    'url' => $this->getLayout()->getUrl(['controller' => $controller, 'action' => 'treat']),
+        foreach (self::MENU as $section => $entries) {
+            $items = [];
+            foreach ($entries as $controller => $entry) {
+                $items[] = [
+                    'name' => $entry['name'],
+                    'active' => $currentController === $controller,
+                    'icon' => $entry['icon'],
+                    'url' => $this->getLayout()->getUrl(['controller' => $controller, 'action' => 'index']),
                 ];
             }
 
-            $items[] = $item;
+            $this->getLayout()->addMenu($section, $items);
         }
-
-        $this->getLayout()->addMenu('menuFitness', $items);
     }
 
     /**

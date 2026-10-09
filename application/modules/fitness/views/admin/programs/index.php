@@ -8,10 +8,7 @@ $programs = $this->get('programs');
 $participantCounts = $this->get('participantCounts');
 $statusClasses = [0 => 'bg-secondary', 1 => 'bg-success', 2 => 'bg-dark'];
 ?>
-<h1>
-    <?=$this->getTrans('menuPrograms') ?>
-    <a class="badge rounded-pill bg-secondary" href="<?=$this->getUrl(['action' => 'treat']) ?>" title="<?=$this->getTrans('add') ?>"><i class="fa-solid fa-plus"></i></a>
-</h1>
+<?php $this->load('admin/partials/listHead.php', ['title' => 'menuPrograms', 'addLabel' => 'addProgram']); ?>
 <?php if ($programs) : ?>
     <p class="text-muted"><?=$this->getTrans('sortInfo') ?></p>
     <form method="POST">

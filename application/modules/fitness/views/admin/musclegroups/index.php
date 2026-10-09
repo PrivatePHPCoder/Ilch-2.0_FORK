@@ -5,10 +5,7 @@
 /** @var \Modules\Fitness\Models\MuscleGroup[] $muscleGroups */
 $muscleGroups = $this->get('muscleGroups');
 ?>
-<h1>
-    <?=$this->getTrans('menuMuscleGroups') ?>
-    <a class="badge rounded-pill bg-secondary" href="<?=$this->getUrl(['action' => 'treat']) ?>" title="<?=$this->getTrans('add') ?>"><i class="fa-solid fa-plus"></i></a>
-</h1>
+<?php $this->load('admin/partials/listHead.php', ['title' => 'menuMuscleGroups', 'addLabel' => 'addMuscleGroup']); ?>
 <?php if ($muscleGroups) : ?>
     <p class="text-muted"><?=$this->getTrans('sortInfo') ?></p>
     <form method="POST">
