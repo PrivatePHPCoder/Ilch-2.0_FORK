@@ -38,12 +38,48 @@ final class PaymentOptions
      */
     private string $info;
 
-    public function __construct(bool $transfer, string $bankDetails, string $paypalMeName, string $info)
-    {
+    /**
+     * Whether PayPal Checkout is switched on, where the server books the payment.
+     *
+     * @var bool
+     */
+    private bool $paypalCheckout;
+
+    /**
+     * Client id of the PayPal app. The secret is never kept in this object.
+     *
+     * @var string
+     */
+    private string $paypalClientId;
+
+    /**
+     * @var bool
+     */
+    private bool $paypalSandbox;
+
+    /**
+     * @var bool
+     */
+    private bool $paypalSecretStored;
+
+    public function __construct(
+        bool $transfer,
+        string $bankDetails,
+        string $paypalMeName,
+        string $info,
+        bool $paypalCheckout = false,
+        string $paypalClientId = '',
+        bool $paypalSandbox = true,
+        bool $paypalSecretStored = false
+    ) {
         $this->transfer = $transfer;
         $this->bankDetails = $bankDetails;
         $this->paypalMeName = $paypalMeName;
         $this->info = $info;
+        $this->paypalCheckout = $paypalCheckout;
+        $this->paypalClientId = $paypalClientId;
+        $this->paypalSandbox = $paypalSandbox;
+        $this->paypalSecretStored = $paypalSecretStored;
     }
 
     /**
@@ -56,8 +92,69 @@ final class PaymentOptions
             (bool)$config->get('fitness_payTransfer'),
             (string)$config->get('fitness_bankDetails'),
             (string)$config->get('fitness_payPaypalMe'),
-            (string)$config->get('fitness_paymentInfo')
+            (string)$config->get('fitness_paymentInfo'),
+            (bool)$config->get('fitness_paypalCheckout'),
+            (string)$config->get('fitness_paypalClientId'),
+            self::isSandboxSetting($config->get('fitness_paypalSandbox')),
+            (string)$config->get('fitness_paypalSecret', true) !== ''
         );
+    }
+
+    /**
+     * The sandbox is the default: only an explicit "0" means live payments.
+     *
+     * @param mixed $value
+     * @return bool
+     */
+    public static function isSandboxSetting($value): bool
+    {
+        return (string)$value !== '0';
+    }
+
+    public function isPaypalCheckoutSwitchedOn(): bool
+    {
+        return $this->paypalCheckout;
+    }
+
+    /**
+     * Whether PayPal Checkout is switched on and has client id and secret.
+     *
+     * @return bool
+     */
+    public function isPaypalCheckoutEnabled(): bool
+    {
+        return $this->paypalCheckout && $this->paypalClientId !== '' && $this->paypalSecretStored;
+    }
+
+    public function getPaypalClientId(): string
+    {
+        return $this->paypalClientId;
+    }
+
+    public function isPaypalSandbox(): bool
+    {
+        return $this->paypalSandbox;
+    }
+
+    public function hasPaypalSecret(): bool
+    {
+        return $this->paypalSecretStored;
+    }
+
+    /**
+     * URL of PayPal's JavaScript for the payment buttons.
+     *
+     * @param string $currency
+     * @return string
+     */
+    public function getPaypalSdkUrl(string $currency): string
+    {
+        return 'https://www.paypal.com/sdk/js?' . http_build_query([
+            'client-id' => $this->paypalClientId,
+            'currency' => $currency,
+            'intent' => 'capture',
+            'components' => 'buttons',
+        ]);
     }
 
     /**
@@ -80,9 +177,15 @@ final class PaymentOptions
         return $this->bankDetails;
     }
 
+    /**
+     * Whether the PayPal.Me link is offered. With PayPal Checkout it is not, so buyers don't see
+     * two PayPal buttons.
+     *
+     * @return bool
+     */
     public function isPaypalMeEnabled(): bool
     {
-        return $this->paypalMeName !== '';
+        return $this->paypalMeName !== '' && !$this->isPaypalCheckoutEnabled();
     }
 
     public function getPaypalMeName(): string
@@ -115,7 +218,7 @@ final class PaymentOptions
      */
     public function isAvailable(): bool
     {
-        return $this->isTransferEnabled() || $this->isPaypalMeEnabled();
+        return $this->isTransferEnabled() || $this->isPaypalMeEnabled() || $this->isPaypalCheckoutEnabled();
     }
 
     /**

@@ -40,6 +40,28 @@ class PaymentTest extends TestCase
         self::assertTrue((new PaymentOptions(false, '', 'FitStudio', ''))->isAvailable());
     }
 
+    public function testPaypalCheckoutNeedsClientIdAndSecretAndReplacesPaypalMe()
+    {
+        $checkout = new PaymentOptions(false, '', 'FitStudio', '', true, 'client-id', true, true);
+
+        self::assertTrue($checkout->isPaypalCheckoutEnabled());
+        self::assertFalse($checkout->isPaypalMeEnabled(), 'Buyers should not see two PayPal buttons.');
+        self::assertTrue($checkout->isAvailable());
+        self::assertStringContainsString('client-id=client-id', $checkout->getPaypalSdkUrl('EUR'));
+        self::assertStringContainsString('currency=EUR', $checkout->getPaypalSdkUrl('EUR'));
+
+        $withoutSecret = new PaymentOptions(false, '', 'FitStudio', '', true, 'client-id', true, false);
+        self::assertFalse($withoutSecret->isPaypalCheckoutEnabled());
+        self::assertTrue($withoutSecret->isPaypalMeEnabled());
+    }
+
+    public function testSandboxIsTheDefault()
+    {
+        self::assertTrue(PaymentOptions::isSandboxSetting(null));
+        self::assertTrue(PaymentOptions::isSandboxSetting('1'));
+        self::assertFalse(PaymentOptions::isSandboxSetting('0'));
+    }
+
     public function testPlaceholdersAreReplacedOnlyOnce()
     {
         $text = OrderMails::fillPlaceholders(

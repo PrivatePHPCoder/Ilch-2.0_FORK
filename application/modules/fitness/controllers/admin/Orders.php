@@ -13,9 +13,10 @@ use Modules\Fitness\Mappers\Order as OrderMapper;
 use Modules\Fitness\Models\Order as OrderModel;
 use Modules\Fitness\Service\OrderMails;
 use Modules\Fitness\Service\Orders as OrdersService;
-use Modules\User\Mappers\Notifications as NotificationsMapper;
+use Modules\Fitness\Service\PayPal;
+use Modules\Fitness\Service\PayPalCheckout;
+use Modules\Fitness\Service\PayPalException;
 use Modules\User\Mappers\User as UserMapper;
-use Modules\User\Models\Notification as NotificationModel;
 
 /**
  * Orders of paid programs. Confirming the payment gives the buyer access.
@@ -101,6 +102,12 @@ class Orders extends Base
                     ->withMessage($mailSent ? 'buyerMailSent' : 'buyerMailFailed', $mailSent ? 'info' : 'warning')
                     ->to($back);
                 break;
+            case 'paypalsync':
+                $result = $this->syncWithPaypal($order);
+                $this->redirect()
+                    ->withMessage($result, $result === 'paypalSyncPaid' ? 'success' : 'info')
+                    ->to($back);
+                break;
             case 'cancel':
                 $done = $service->cancel($order, $note);
                 break;
@@ -145,27 +152,40 @@ class Orders extends Base
      */
     private function tellBuyerAboutPayment(OrderModel $order): bool
     {
-        $user = (new UserMapper())->getUserById((int)$order->getUserId());
-        if (!$user) {
-            return false;
+        return (new OrderMails($this->getLayout()))->sendPaymentConfirmation(
+            $order,
+            $this->getLayout()->getUrl(['module' => 'fitness', 'controller' => 'programs', 'action' => 'show', 'id' => $order->getProgramId()], '')
+        );
+    }
+
+    /**
+     * Asks PayPal about an open order paid with PayPal Checkout and confirms it if PayPal booked
+     * the money.
+     *
+     * @param OrderModel $order
+     * @return string translation key of the result
+     */
+    private function syncWithPaypal(OrderModel $order): string
+    {
+        $paypal = PayPal::fromConfig($this->getConfig());
+        if (!$paypal || $order->getProviderOrderId() === null) {
+            return 'paypalSyncNotPossible';
         }
 
-        $programUrl = $this->getLayout()->getUrl(['module' => 'fitness', 'controller' => 'programs', 'action' => 'show', 'id' => $order->getProgramId()], '');
+        try {
+            $state = (new PayPalCheckout($paypal))->sync($order);
+        } catch (PayPalException $exception) {
+            return 'paypalUnreachable';
+        }
 
-        (new NotificationsMapper())->addNotification((new NotificationModel())
-            ->setUserId($user->getId())
-            ->setModule('fitness')
-            ->setMessage(mb_substr($this->getTranslator()->trans('orderPaidNotification', $order->getProgramTitle()), 0, 255))
-            ->setURL($programUrl)
-            ->setType('orderPaid'));
+        if ($state === PayPal::STATE_PAID && $order->isPaid()) {
+            $this->tellBuyerAboutPayment($order);
+        }
 
-        return (new OrderMails($this->getLayout()))->sendForOrder(
-            OrderMails::TYPE_PAID,
-            $order,
-            $user->getEmail(),
-            $user->getName(),
-            $user->getLocale() ?: (string)$this->getConfig()->get('locale'),
-            ['{programLink}' => $programUrl]
-        );
+        return [
+            PayPal::STATE_PAID => 'paypalSyncPaid',
+            PayPal::STATE_PENDING => 'paypalSyncPending',
+            PayPal::STATE_OPEN => 'paypalSyncOpen',
+        ][$state] ?? 'paypalSyncInvalid';
     }
 }

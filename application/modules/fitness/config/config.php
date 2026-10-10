@@ -21,7 +21,7 @@ class Config extends Install
 {
     public array $config = [
         'key' => 'fitness',
-        'version' => '1.2.0',
+        'version' => '1.3.0',
         'icon_small' => 'fa-solid fa-dumbbell',
         'author' => 'PrivatePHPCoder',
         'languages' => [
@@ -87,6 +87,10 @@ class Config extends Install
         'fitness_payPaypalMe' => '',
         'fitness_paymentInfo' => '',
         'fitness_orderNotifyEmail' => '',
+        'fitness_paypalCheckout' => '0',
+        'fitness_paypalSandbox' => '1',
+        'fitness_paypalClientId' => '',
+        'fitness_paypalSecret' => '',
     ];
 
     public function install(): void
@@ -450,6 +454,10 @@ class Config extends Install
                 // Paid programs with payment settings and e-mails came with 1.2.0.
                 $this->installSettings();
                 $this->installMailTemplates();
+                // no break
+            case '1.2.0':
+                // PayPal Checkout came with 1.3.0.
+                $this->installSettings();
         }
 
         return '"' . $this->config['key'] . '" Update-function executed.';

@@ -1163,6 +1163,23 @@ a.fx-chip:hover {
     padding: 0.85rem 1.25rem;
 }
 
+.fx-paypal__consent {
+    margin: 0.75rem 0 0;
+    color: var(--fx-muted);
+    font-size: 0.8rem;
+}
+
+.fx-paypal__buttons {
+    max-width: 26rem;
+    margin-top: 1rem;
+}
+
+.fx-paypal__message {
+    margin: 1rem 0 0;
+    color: #b91c1c;
+    font-weight: 600;
+}
+
 /*
  * Two columns that adapt to the space of the content area, not to the window. Inside the
  * regular website layout the content area can be much narrower than the window.

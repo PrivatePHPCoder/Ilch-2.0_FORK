@@ -70,12 +70,12 @@ class Orders
      * confirmed as well, for example when the money arrives late.
      *
      * @param OrderModel $order
-     * @param int $adminId admin who confirms the payment
+     * @param int|null $adminId admin who confirms the payment, null if PayPal confirmed it
      * @param string $method one of the keys of OrderModel::METHODS
      * @param string $note internal note
      * @return EnrollmentModel|null the participation, or null if the order can't be confirmed
      */
-    public function confirmPayment(OrderModel $order, int $adminId, string $method, string $note = ''): ?EnrollmentModel
+    public function confirmPayment(OrderModel $order, ?int $adminId, string $method, string $note = ''): ?EnrollmentModel
     {
         if ($order->getUserId() === null || !in_array($order->getStatus(), [OrderModel::STATUS_OPEN, OrderModel::STATUS_CANCELLED], true)) {
             return null;

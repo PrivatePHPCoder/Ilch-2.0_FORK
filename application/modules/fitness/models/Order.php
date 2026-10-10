@@ -53,6 +53,7 @@ class Order extends Model
     public const METHODS = [
         'transfer' => 'paymentTransfer',
         'paypalme' => 'paymentPaypalMe',
+        'paypal' => 'paymentPaypalCheckout',
         'other' => 'paymentOther',
     ];
 
@@ -126,6 +127,20 @@ class Order extends Model
     protected string $referenceCode = '';
 
     /**
+     * Id of the PayPal order, if the buyer started paying with PayPal Checkout.
+     *
+     * @var string|null
+     */
+    protected ?string $providerOrderId = null;
+
+    /**
+     * Id of the PayPal capture, once PayPal has booked the money.
+     *
+     * @var string|null
+     */
+    protected ?string $providerCaptureId = null;
+
+    /**
      * @var string
      */
     protected string $createdAt = '';
@@ -187,6 +202,12 @@ class Order extends Model
         }
         if (isset($entries['reference_code'])) {
             $this->setReferenceCode($entries['reference_code']);
+        }
+        if (array_key_exists('provider_order_id', $entries)) {
+            $this->setProviderOrderId($entries['provider_order_id']);
+        }
+        if (array_key_exists('provider_capture_id', $entries)) {
+            $this->setProviderCaptureId($entries['provider_capture_id']);
         }
         if (isset($entries['created_at'])) {
             $this->setCreatedAt($entries['created_at']);
@@ -353,6 +374,28 @@ class Order extends Model
     public function setReferenceCode(string $referenceCode): Order
     {
         $this->referenceCode = $referenceCode;
+        return $this;
+    }
+
+    public function getProviderOrderId(): ?string
+    {
+        return $this->providerOrderId;
+    }
+
+    public function setProviderOrderId(?string $providerOrderId): Order
+    {
+        $this->providerOrderId = $providerOrderId === '' ? null : $providerOrderId;
+        return $this;
+    }
+
+    public function getProviderCaptureId(): ?string
+    {
+        return $this->providerCaptureId;
+    }
+
+    public function setProviderCaptureId(?string $providerCaptureId): Order
+    {
+        $this->providerCaptureId = $providerCaptureId === '' ? null : $providerCaptureId;
         return $this;
     }
 
