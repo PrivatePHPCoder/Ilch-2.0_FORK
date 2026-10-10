@@ -69,6 +69,17 @@ $canConfirm = $order->getUserId() !== null && in_array($order->getStatus(), [Ord
                         </td>
                     </tr>
                 <?php endif; ?>
+                <?php if ($order->getProviderOrderId() !== null) : ?>
+                    <tr>
+                        <th><?=$this->getTrans('paymentPaypalCheckout') ?></th>
+                        <td>
+                            <?=$this->getTrans('paypalOrderId') ?>: <code><?=$this->escape($order->getProviderOrderId()) ?></code>
+                            <?php if ($order->getProviderCaptureId() !== null) : ?>
+                                <br><?=$this->getTrans('paypalCaptureId') ?>: <code><?=$this->escape($order->getProviderCaptureId()) ?></code>
+                            <?php endif; ?>
+                        </td>
+                    </tr>
+                <?php endif; ?>
                 <tr>
                     <th><?=$this->getTrans('participation') ?></th>
                     <td>
@@ -117,6 +128,11 @@ $canConfirm = $order->getUserId() !== null && in_array($order->getStatus(), [Ord
                 <button type="submit" class="btn btn-outline-secondary" name="change" value="note">
                     <i class="fa-solid fa-floppy-disk"></i> <?=$this->getTrans('saveNote') ?>
                 </button>
+                <?php if ($order->isOpen() && $order->getProviderOrderId() !== null) : ?>
+                    <button type="submit" class="btn btn-outline-primary" name="change" value="paypalsync">
+                        <i class="fa-brands fa-paypal"></i> <?=$this->getTrans('paypalSync') ?>
+                    </button>
+                <?php endif; ?>
                 <?php if ($order->isOpen()) : ?>
                     <button type="submit" class="btn btn-outline-danger" name="change" value="cancel" data-confirm="<?=$this->getTrans('cancelOrderAdminConfirm') ?>">
                         <i class="fa-solid fa-xmark"></i> <?=$this->getTrans('cancelOrder') ?>

@@ -12,6 +12,9 @@ use Ilch\Design\Base as Design;
 use Ilch\Registry;
 use Modules\Admin\Mappers\Emails as EmailsMapper;
 use Modules\Fitness\Models\Order as OrderModel;
+use Modules\User\Mappers\Notifications as NotificationsMapper;
+use Modules\User\Mappers\User as UserMapper;
+use Modules\User\Models\Notification as NotificationModel;
 
 /**
  * E-mails about orders. The texts are e-mail templates of Ilch, so admins can change them in the
@@ -100,6 +103,39 @@ class OrderMails
     {
         $this->design = $design;
         $this->emailsMapper = $emailsMapper ?? new EmailsMapper();
+    }
+
+    /**
+     * Tells the buyer that the payment arrived and the program is unlocked: as notification of the
+     * website and by e-mail.
+     *
+     * @param OrderModel $order
+     * @param string $programUrl full URL of the program page
+     * @return bool whether the e-mail was sent
+     */
+    public function sendPaymentConfirmation(OrderModel $order, string $programUrl): bool
+    {
+        $user = $order->getUserId() !== null ? (new UserMapper())->getUserById($order->getUserId()) : null;
+        if (!$user) {
+            return false;
+        }
+
+        $message = $this->design->getTranslator()->trans('orderPaidNotification', $order->getProgramTitle());
+        (new NotificationsMapper())->addNotification((new NotificationModel())
+            ->setUserId($user->getId())
+            ->setModule('fitness')
+            ->setMessage(mb_substr($message, 0, 255))
+            ->setURL($programUrl)
+            ->setType('orderPaid'));
+
+        return $this->sendForOrder(
+            self::TYPE_PAID,
+            $order,
+            $user->getEmail(),
+            $user->getName(),
+            $user->getLocale() ?: (string)Registry::get('config')->get('locale'),
+            ['{programLink}' => $programUrl]
+        );
     }
 
     /**

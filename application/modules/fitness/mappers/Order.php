@@ -43,7 +43,7 @@ class Order extends Base
      */
     public function getEntriesBy(array $where = [], array $orderBy = ['o.created_at' => 'DESC', 'o.id' => 'DESC'], ?Pagination $pagination = null): array
     {
-        $select = $this->db()->select(['o.id', 'o.user_id', 'o.program_id', 'o.amount', 'o.currency', 'o.status', 'o.payment_method', 'o.reference_code', 'o.created_at', 'o.paid_at', 'o.confirmed_by', 'o.note'])
+        $select = $this->db()->select(['o.id', 'o.user_id', 'o.program_id', 'o.amount', 'o.currency', 'o.status', 'o.payment_method', 'o.reference_code', 'o.provider_order_id', 'o.provider_capture_id', 'o.created_at', 'o.paid_at', 'o.confirmed_by', 'o.note'])
             ->from(['o' => $this->tablename])
             ->join(['p' => 'fitness_programs'], 'p.id = o.program_id', 'INNER', ['program_title' => 'p.title'])
             ->join(['u' => 'users'], 'u.id = o.user_id', 'LEFT', ['user_name' => 'u.name', 'user_email' => 'u.email'])
@@ -140,6 +140,19 @@ class Order extends Base
             'paid_at' => $order->getPaidAt(),
             'confirmed_by' => $order->getConfirmedBy(),
             'note' => $order->getNote(),
+        ]);
+    }
+
+    /**
+     * Stores the ids PayPal gave the order and its capture.
+     *
+     * @param OrderModel $order
+     */
+    public function updateProviderIds(OrderModel $order): void
+    {
+        $this->updateRow($this->tablename, $order->getId(), [
+            'provider_order_id' => $order->getProviderOrderId(),
+            'provider_capture_id' => $order->getProviderCaptureId(),
         ]);
     }
 

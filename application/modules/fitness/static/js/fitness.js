@@ -40,6 +40,79 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
+    // PayPal Checkout. PayPal's script is only loaded after the buyer clicks, so no data goes to
+    // PayPal before. The server creates and books the payment; the page only passes the ids on.
+    document.querySelectorAll('[data-fx-paypal]').forEach(function (box) {
+        const start = box.querySelector('[data-fx-paypal-start]');
+        const container = box.querySelector('.fx-paypal__buttons');
+        const message = box.querySelector('.fx-paypal__message');
+
+        const showMessage = function (text) {
+            message.textContent = text || box.dataset.error;
+            message.hidden = false;
+        };
+
+        const post = function (url, fields) {
+            const body = new FormData();
+            body.append('ilch_token', box.dataset.token);
+            Object.keys(fields).forEach(function (name) {
+                body.append(name, fields[name]);
+            });
+
+            return fetch(url, {
+                method: 'POST',
+                body: body,
+                credentials: 'same-origin',
+                headers: {'X-Requested-With': 'XMLHttpRequest'}
+            }).then(function (response) {
+                return response.json();
+            });
+        };
+
+        start.addEventListener('click', function () {
+            start.disabled = true;
+            message.hidden = true;
+
+            const script = document.createElement('script');
+            script.src = box.dataset.sdk;
+            script.onerror = function () {
+                start.disabled = false;
+                showMessage();
+            };
+            script.onload = function () {
+                start.hidden = true;
+                container.hidden = false;
+
+                window.paypal.Buttons({
+                    createOrder: function () {
+                        return post(box.dataset.create, {}).then(function (answer) {
+                            if (!answer.id) {
+                                showMessage(answer.message);
+                                throw new Error(answer.message || 'PayPal');
+                            }
+                            return answer.id;
+                        });
+                    },
+                    onApprove: function (data, actions) {
+                        return post(box.dataset.capture, {paypalOrderId: data.orderID}).then(function (answer) {
+                            if (answer.state === 'paid') {
+                                window.location.href = answer.redirect;
+                            } else if (answer.state === 'declined') {
+                                return actions.restart();
+                            } else {
+                                showMessage(answer.message);
+                            }
+                        });
+                    },
+                    onError: function () {
+                        showMessage();
+                    }
+                }).render(container);
+            };
+            document.head.appendChild(script);
+        });
+    });
+
     // Asks before buttons with a lasting effect, for example cancelling an order.
     document.querySelectorAll('[data-fx-confirm]').forEach(function (button) {
         button.addEventListener('click', function (event) {

@@ -105,6 +105,20 @@ class ConfigTest extends DatabaseTestCase
     }
 
     /**
+     * Tests that the update from 1.2.0 adds the PayPal Checkout settings, switched off and in
+     * test mode.
+     */
+    public function testUpdateFrom120AddsPaypalSettingsSwitchedOffInSandbox()
+    {
+        $this->out->getUpdate('1.2.0');
+
+        $databaseConfig = new DatabaseConfig($this->db);
+        self::assertSame('0', $databaseConfig->get('fitness_paypalCheckout', true));
+        self::assertSame('1', $databaseConfig->get('fitness_paypalSandbox', true));
+        self::assertSame('', $databaseConfig->get('fitness_paypalSecret', true));
+    }
+
+    /**
      * Tests that uninstall() removes all tables and settings of the module.
      */
     public function testUninstallRemovesTablesAndSettings()

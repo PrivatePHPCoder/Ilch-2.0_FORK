@@ -14,6 +14,9 @@ use Modules\Fitness\Models\Order as OrderModel;
 use Modules\Fitness\Models\PaymentOptions;
 use Modules\Fitness\Service\OrderMails;
 use Modules\Fitness\Service\Orders as OrdersService;
+use Modules\Fitness\Service\PayPal;
+use Modules\Fitness\Service\PayPalCheckout;
+use Modules\Fitness\Service\PayPalException;
 
 /**
  * Orders of paid programs: placing an order, the payment page and the list of own orders.
@@ -45,6 +48,18 @@ class Orders extends Base
     public function showAction()
     {
         $order = $this->loadOwnOrder((int)$this->getRequest()->getParam('id'));
+
+        // Paid with PayPal, but the answer got lost? Ask PayPal before showing the payment page again.
+        if ($order->isOpen() && $order->getProviderOrderId() !== null) {
+            $paypal = PayPal::fromConfig($this->getConfig());
+            try {
+                if ($paypal && (new PayPalCheckout($paypal))->sync($order) === PayPal::STATE_PAID) {
+                    $this->tellBuyerAboutPayment($order);
+                }
+            } catch (PayPalException $exception) {
+                // PayPal can't be reached right now; the page shows the order as it is stored.
+            }
+        }
 
         $this->getLayout()->getTitle()
             ->add($this->getTranslator()->trans('menuFitness'))
@@ -105,6 +120,127 @@ class Orders extends Base
         $this->redirect()
             ->withMessage('orderPlaced')
             ->to(['action' => 'show', 'id' => $order->getId()]);
+    }
+
+    /**
+     * Creates the PayPal order when the buyer clicks the PayPal button. Called by the page's
+     * JavaScript with POST, answers with JSON. The amount comes from the stored order.
+     */
+    public function paypalcreateAction()
+    {
+        $order = $this->loadOrderForPaypal();
+        if ($order === null) {
+            return;
+        }
+
+        try {
+            $paypalOrderId = (new PayPalCheckout(PayPal::fromConfig($this->getConfig())))->start(
+                $order,
+                $order->getProgramTitle(),
+                (string)$this->getConfig()->get('page_title')
+            );
+        } catch (PayPalException $exception) {
+            $key = [
+                'ORDER_ALREADY_PAID' => 'paypalAlreadyPaid',
+                'PAYMENT_PENDING' => 'paypalPending',
+                'ORDER_NOT_OPEN' => 'orderNotOpen',
+            ][$exception->getIssue()] ?? 'paypalError';
+            $this->sendJson(['message' => $this->getTranslator()->trans($key)]);
+            return;
+        }
+
+        $this->sendJson(['id' => $paypalOrderId]);
+    }
+
+    /**
+     * Books the payment after the buyer approved it at PayPal. Called by the page's JavaScript with
+     * POST, answers with JSON. Access is only given if PayPal confirms the booked amount.
+     */
+    public function paypalcaptureAction()
+    {
+        $order = $this->loadOrderForPaypal();
+        if ($order === null) {
+            return;
+        }
+
+        $wasOpen = $order->isOpen();
+        try {
+            $state = (new PayPalCheckout(PayPal::fromConfig($this->getConfig())))
+                ->finish($order, (string)$this->getRequest()->getPost('paypalOrderId'));
+        } catch (PayPalException $exception) {
+            // Declined card or similar: the PayPal window lets the buyer choose another way.
+            $this->sendJson($exception->getIssue() === 'INSTRUMENT_DECLINED'
+                ? ['state' => 'declined']
+                : ['state' => 'error', 'message' => $this->getTranslator()->trans('paypalError')]);
+            return;
+        }
+
+        if ($state === PayPal::STATE_PAID) {
+            // A second request for the same payment must not send the e-mail again.
+            if ($wasOpen) {
+                $this->tellBuyerAboutPayment($order);
+            }
+            $this->addMessage('paypalPaid');
+            $this->sendJson([
+                'state' => 'paid',
+                'redirect' => $this->getLayout()->getUrl(['controller' => 'programs', 'action' => 'show', 'id' => $order->getProgramId()]),
+            ]);
+            return;
+        }
+
+        $this->sendJson([
+            'state' => $state,
+            'message' => $this->getTranslator()->trans($state === PayPal::STATE_PENDING ? 'paypalPending' : 'paypalFailed'),
+        ]);
+    }
+
+    /**
+     * Loads the order of the current user for the PayPal actions. Answers with a JSON error and
+     * returns null if it is not a POST request, PayPal Checkout is not set up or the order is not
+     * the user's open order.
+     *
+     * @return OrderModel|null
+     */
+    private function loadOrderForPaypal(): ?OrderModel
+    {
+        $order = (new OrderMapper())->getOrderById((int)$this->getRequest()->getParam('id'));
+
+        if (!$this->getRequest()->isPost() || !PayPal::fromConfig($this->getConfig())) {
+            $this->sendJson(['state' => 'error', 'message' => $this->getTranslator()->trans('paypalError')]);
+            return null;
+        }
+
+        if (!$order || $order->getUserId() !== $this->getUser()->getId()) {
+            $this->sendJson(['state' => 'error', 'message' => $this->getTranslator()->trans('orderNotFound')]);
+            return null;
+        }
+
+        return $order;
+    }
+
+    /**
+     * Answers with JSON instead of a page. The view of the action prints the data.
+     *
+     * @param array $data
+     */
+    private function sendJson(array $data): void
+    {
+        $this->getLayout()->setDisabled(true);
+        header('Content-Type: application/json; charset=utf-8');
+        $this->getView()->set('json', $data);
+    }
+
+    /**
+     * Tells the buyer about the confirmed payment.
+     *
+     * @param OrderModel $order
+     */
+    private function tellBuyerAboutPayment(OrderModel $order): void
+    {
+        (new OrderMails($this->getLayout()))->sendPaymentConfirmation(
+            $order,
+            $this->getLayout()->getUrl(['module' => 'fitness', 'controller' => 'programs', 'action' => 'show', 'id' => $order->getProgramId()])
+        );
     }
 
     /**

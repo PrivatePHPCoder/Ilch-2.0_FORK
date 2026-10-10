@@ -44,6 +44,30 @@ $amount = $this->getFormattedCurrency((float)$order->getAmount(), $order->getCur
                     </div>
                 </div>
 
+                <?php if ($payment->isPaypalCheckoutEnabled()) : ?>
+                    <div class="fx-pay__method fx-paypal"
+                         data-fx-paypal
+                         data-sdk="<?=$this->escape($payment->getPaypalSdkUrl($order->getCurrency())) ?>"
+                         data-create="<?=$this->escape($this->getUrl(['action' => 'paypalcreate', 'id' => $order->getId()])) ?>"
+                         data-capture="<?=$this->escape($this->getUrl(['action' => 'paypalcapture', 'id' => $order->getId()])) ?>"
+                         data-token="<?=$this->generateToken() ?>"
+                         data-error="<?=$this->escape($this->getTrans('paypalError')) ?>">
+                        <h3>
+                            <i class="fa-brands fa-paypal"></i> <?=$this->getTrans('paymentPaypalCheckout') ?>
+                            <?php if ($payment->isPaypalSandbox()) : ?>
+                                <span class="fx-badge fx-badge--soft"><?=$this->getTrans('paypalSandboxBadge') ?></span>
+                            <?php endif; ?>
+                        </h3>
+                        <p class="fx-muted"><?=$this->getTrans('paypalCheckoutHint') ?></p>
+                        <button type="button" class="btn fx-btn fx-btn--primary" data-fx-paypal-start>
+                            <i class="fa-brands fa-paypal"></i> <?=$this->getTrans('payWithPaypal', $amount) ?>
+                        </button>
+                        <p class="fx-paypal__consent"><?=$this->getTrans('paypalConsent') ?></p>
+                        <div class="fx-paypal__buttons" hidden></div>
+                        <p class="fx-paypal__message" role="alert" hidden></p>
+                    </div>
+                <?php endif; ?>
+
                 <?php if ($payment->isTransferEnabled()) : ?>
                     <div class="fx-pay__method">
                         <h3><i class="fa-solid fa-building-columns"></i> <?=$this->getTrans('paymentTransfer') ?></h3>
