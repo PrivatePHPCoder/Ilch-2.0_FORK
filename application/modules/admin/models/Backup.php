@@ -12,52 +12,48 @@ use Ilch\Model;
 class Backup extends Model
 {
     /**
-     * The backup of the backup.
-     *
-     * @var int
+     * The id of the backup.
      */
-    protected $id;
+    protected ?int $id = null;
 
     /**
      * The name of the backup.
-     *
-     * @var string
      */
-    protected $name;
+    protected ?string $name = null;
 
     /**
      * The datetime of the backup.
-     *
-     * @var string
      */
-    protected $date;
+    protected ?string $date = null;
 
     /**
-     * Gets the id of the box.
+     * Gets the id of the backup.
      *
-     * @return int
+     * @return int|null
      */
-    public function getId(): int
+    public function getId(): ?int
     {
         return $this->id;
     }
 
     /**
-     * Sets the id of the box.
+     * Sets the id of the backup.
      *
      * @param int $id
      */
-    public function setId(int $id)
+    public function setId(int $id): Backup
     {
         $this->id = $id;
+
+        return $this;
     }
 
     /**
      * Gets the backup name.
      *
-     * @return string
+     * @return string|null
      */
-    public function getName(): string
+    public function getName(): ?string
     {
         return $this->name;
     }
@@ -67,17 +63,19 @@ class Backup extends Model
      *
      * @param string $name
      */
-    public function setName(string $name)
+    public function setName(string $name): Backup
     {
         $this->name = $name;
+
+        return $this;
     }
 
     /**
      * Gets the backup date.
-     **
-     * @return string
+     *
+     * @return string|null
      */
-    public function getDate(): string
+    public function getDate(): ?string
     {
         return $this->date;
     }
@@ -87,8 +85,10 @@ class Backup extends Model
      *
      * @param string $date
      */
-    public function setDate(string $date)
+    public function setDate(string $date): Backup
     {
         $this->date = $date;
+
+        return $this;
     }
 }
