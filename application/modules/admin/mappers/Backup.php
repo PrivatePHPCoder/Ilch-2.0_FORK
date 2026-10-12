@@ -19,10 +19,10 @@ class Backup extends \Ilch\Mapper
     public function getBackups(): ?array
     {
         $array = $this->db()->select('*')
-                ->from('backup')
-                ->order(['id' => 'DESC'])
-                ->execute()
-                ->fetchRows();
+            ->from('backup')
+            ->order(['id' => 'DESC'])
+            ->execute()
+            ->fetchRows();
 
         if (empty($array)) {
             return null;
@@ -49,35 +49,8 @@ class Backup extends \Ilch\Mapper
     public function getBackupById(int $id): ?BackupModel
     {
         $result = $this->db()->select('*')
-                ->from('backup')
-                ->where(['id' => $id])
-                ->execute()
-                ->fetchAssoc();
-
-        if (empty($result)) {
-            return null;
-        }
-
-        $backupModel = new BackupModel();
-        $backupModel->setId($result['id']);
-        $backupModel->setName($result['name']);
-        $backupModel->setDate($result['date']);
-
-        return $backupModel;
-    }
-
-    /**
-     * Get the newest backup.
-     *
-     * @return BackupModel|null
-     * @since 2.1.51
-     */
-    public function getLastBackup(): ?BackupModel
-    {
-        $result = $this->db()->select('*')
             ->from('backup')
-            ->limit(1)
-            ->order(['id' => 'DESC'])
+            ->where(['id' => $id])
             ->execute()
             ->fetchAssoc();
 
@@ -94,30 +67,63 @@ class Backup extends \Ilch\Mapper
     }
 
     /**
-     * Inserts backup model.
+     * Gets the newest backup.
+     *
+     * @return BackupModel|null
+     * @since 2.1.51
+     */
+    public function getLastBackup(): ?BackupModel
+    {
+        $result = $this->db()->select('*')
+            ->from('backup')
+            ->limit(1)
+            ->order(['date' => 'DESC'])
+            ->execute()
+            ->fetchAssoc();
+
+        if (empty($result)) {
+            return null;
+        }
+
+        $backupModel = new BackupModel();
+        $backupModel->setId($result['id']);
+        $backupModel->setName($result['name']);
+        $backupModel->setDate($result['date']);
+
+        return $backupModel;
+    }
+
+    /**
+     * Inserts a backup model.
      *
      * @param BackupModel $backup
+     * @return int The id of the new backup.
      */
-    public function save(BackupModel $backup)
+    public function save(BackupModel $backup): int
     {
         $fields = [
             'name' => $backup->getName(),
             'date' => $backup->getDate()
         ];
 
-        $this->db()->insert('backup')
+        $backupId = $this->db()->insert('backup')
             ->values($fields)
             ->execute();
+
+        $backup->setId($backupId);
+
+        return $backupId;
     }
 
     /**
-     * Deletes backup with the given id.
+     * Deletes a backup with the given id.
      *
      * @param int $id
+     * @return bool
      */
-    public function delete(int $id)
+    public function delete(int $id): bool
     {
-        $this->db()->delete('backup')
+        return (bool)$this->db()->delete('backup')
             ->where(['id' => $id])
             ->execute();
     }

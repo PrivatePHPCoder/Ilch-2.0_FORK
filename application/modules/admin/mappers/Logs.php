@@ -13,16 +13,23 @@ use Ilch\Date as IlchDate;
 class Logs extends \Ilch\Mapper
 {
     /**
-     * Gets all logs.
+     * Gets all logs, optionally filtered by date prefix (e.g. '2024' or '2024-01').
      *
      * @param string $date
-     * @return LogsModel[]|array
+     * @return LogsModel[]|null
      */
-    public function getLogs($date)
+    public function getLogs(string $date = ''): ?array
     {
-        $entriesArray = $this->db()->select('*')
-            ->from('logs')
-            ->where(['date LIKE' => $date . '%'])
+        $select = $this->db()->select('*')
+            ->from('logs');
+
+        // Only add the date filter if a date was actually given,
+        // so an empty string doesn't silently match everything via LIKE '%'.
+        if ($date !== '') {
+            $select->where(['date LIKE' => $date . '%']);
+        }
+
+        $entriesArray = $select
             ->order(['date' => 'DESC'])
             ->execute()
             ->fetchRows();
@@ -44,11 +51,11 @@ class Logs extends \Ilch\Mapper
     }
 
     /**
-     * Gets all logs date.
+     * Gets all log dates.
      *
-     * @return LogsModel[]|array
+     * @return LogsModel[]|null
      */
-    public function getLogsDate()
+    public function getLogsDate(): ?array
     {
         $sql = 'SELECT DATE(`date`) AS `date_full`, MONTH(`date`) AS `date_month`, DAY(`date`) AS `date_day`
                 FROM `[prefix]_logs`
@@ -71,12 +78,12 @@ class Logs extends \Ilch\Mapper
     }
 
     /**
-     * Get the logs by an optionally provided where-clause.
+     * Gets the logs by the optionally provided where clause.
      *
      * @param array $where
-     * @return array|LogsModel[]
+     * @return LogsModel[]
      */
-    public function getLogsBy($where = [])
+    public function getLogsBy(array $where = []): array
     {
         $entriesArray = $this->db()->select('*')
             ->from('logs')
@@ -102,39 +109,41 @@ class Logs extends \Ilch\Mapper
     }
 
     /**
-     * Insert log.
+     * Inserts a log.
+     *
+     * Skipped if the same log for the same user was already written less than a minute ago.
      *
      * @param int $userId
      * @param string $info
      */
-    public function saveLog($userId, $info)
+    public function saveLog(int $userId, string $info): void
     {
-        $date = new IlchDate();
-        $date->modify('-1 minutes');
+        $now = new IlchDate();
+
+        $oneMinuteAgo = new IlchDate();
+        $oneMinuteAgo->modify('-1 minutes');
 
         $count = $this->db()->select('COUNT(*)')
             ->from('logs')
-            ->where(['user_id' => (int)$userId, 'info' => $info, 'date >' => $date->toDb(true)])
+            ->where(['user_id' => $userId, 'info' => $info, 'date >' => $oneMinuteAgo->toDb(true)])
             ->execute()
             ->fetchCell();
 
         if ($count == 0) {
-            $fields = [
-                'user_id' => $userId,
-                'info' => $info
-            ];
-
             $this->db()->insert('logs')
-                ->values($fields)
+                ->values([
+                    'user_id' => $userId,
+                    'info' => $info,
+                    'date' => $now->toDb(true)
+                ])
                 ->execute();
         }
     }
 
     /**
-     * Clear log.
-     *
+     * Clears all logs.
      */
-    public function clearLog()
+    public function clearLog(): void
     {
         $this->db()->truncate('[prefix]_logs');
     }
